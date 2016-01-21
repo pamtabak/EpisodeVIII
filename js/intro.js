@@ -1,10 +1,17 @@
 var container, stats;
 var camera, scene, renderer;
 var group, text, text2;
-var wholeText = [];
 var groups = [];
 
 var clock;
+
+var clearIntro = true;
+var startLogo = true;
+var startParagraph = true;
+
+var plane;
+
+var sound;
 
 init();
 animate();
@@ -17,7 +24,7 @@ function init() {
 	// Initializing scene
 	scene = new THREE.Scene();
 
-	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1000 );
+	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
 	camera.position.set( 0, 160, 200 );
 
 	// set clear color as transparent, so the background doenst disappear
@@ -25,192 +32,13 @@ function init() {
 	renderer.setSize( window.innerWidth, window.innerHeight );	
 	container.appendChild( renderer.domElement );
 
+	// initialize clock
 	clock = new THREE.Clock();
 
+	// initialize audio
+	sound = new Audio("sounds/intro.mp3");
+
 	createIntroText();
-
-// 	var theText      = "Star Wars"
-// 	var theText2     = "Em uma sala de aula na UFRJ, em pleno verao...";
-//     var theText3     = "It is a period of civil war. Rebel"
-// 	var theText4     = "spaceships, striking from a hidden"
-// 	var theText5     = "base, have won their first victory"
-// 	var theText6     = "against the evil Galactic Empire."
-
-// 	// Get text from hash
-// 	var hash = document.location.hash.substr( 1 );
-// 	if ( hash.length !== 0 ) {
-// 		theText = hash;
-// 	}
-
-// 	//--------------------------- TEST PART --------------------------
-// 	//Adding each sentence separately cause I didn't get yet how to do it another way.
-
-// 	var text3d2 = new THREE.TextGeometry( theText2, {
-// 		size: 20,
-// 		//height seems to change the volume of the text
-// 		height: 5,
-// 		curveSegments: 5,
-// 		font: "helvetiker"
-// 	});
-
-// 	text3d2.computeBoundingBox();
-// 	var centerOffset = -0.5 * ( text3d2.boundingBox.max.x - text3d2.boundingBox.min.x );
-// 	var textMaterial2 = new THREE.MeshBasicMaterial( { color: 'rgb(253, 221, 0)', overdraw: 0.1 });
-// 	text2 = new THREE.Mesh( text3d2, textMaterial2 );
-
-// 	text2.position.x = centerOffset;
-// 	text2.position.y = 60;
-// 	text2.position.z = 300;
-
-// 	//Gives the text an angle
-// 	text2.rotation.x = 150;
-// 	//text2.rotation.y = Math.PI * 2;
-
-// 	group = new THREE.Object3D();
-// 	group.add( text2 );
-// 	scene.add( group );
-
-//     //--------------------- 3rd sentence -----------------
-
-// 	var text3d3 = new THREE.TextGeometry( theText3, {
-// 		size: 18,
-// 		//height seems to change the volume of the text
-// 		height: 5,
-// 		curveSegments: 5,
-// 		font: "helvetiker"
-// 	});
-
-// 	text3d3.computeBoundingBox();
-// 	var centerOffset = -0.5 * ( text3d3.boundingBox.max.x - text3d3.boundingBox.min.x );
-// 	var textMaterial3 = new THREE.MeshBasicMaterial( { color: 'rgb(253, 221, 10)', overdraw: 0.1 });
-// 	text3 = new THREE.Mesh( text3d3, textMaterial3 );
-
-// 	text3.position.x = centerOffset;
-// 	text3.position.y = 50;
-// 	text3.position.z = 300;
-
-// 	//Gives the text an angle
-// 	text3.rotation.x = 150;
-// 	//text2.rotation.y = Math.PI * 2;
-
-// 	group = new THREE.Object3D();
-// 	group.add( text3 );
-// 	scene.add( group );
-
-// //---------------------- 4th sentence ---------------------
-// 	var text3d4 = new THREE.TextGeometry( theText4, {
-// 		size: 16,
-// 		//height seems to change the volume of the text
-// 		height: 5,
-// 		curveSegments: 5,
-// 		font: "helvetiker"
-// 	});
-
-// 	text3d4.computeBoundingBox();
-// 	var centerOffset = -0.5 * ( text3d4.boundingBox.max.x - text3d4.boundingBox.min.x );
-
-// 	var textMaterial4 = new THREE.MeshBasicMaterial( { color: 'rgb(253, 221, 10)', overdraw: 0.1 });
-// 	text4 = new THREE.Mesh( text3d4, textMaterial4 );
-
-// 	text4.position.x = centerOffset;
-// 	text4.position.y = 40;
-// 	text4.position.z = 300;
-
-// 	//Gives the text an angle
-// 	text4.rotation.x = 150;
-// 	//text2.rotation.y = Math.PI * 2;
-
-// 	group = new THREE.Object3D();
-// 	group.add( text4 );
-// 	scene.add( group );
-
-// //------------------------- 5th sentence ------------------------
-
-// 	var text3d5 = new THREE.TextGeometry( theText5, {
-// 		size: 14,
-// 		//height seems to change the volume of the text
-// 		height: 5,
-// 		curveSegments: 5,
-// 		font: "helvetiker"
-// 	});
-
-// 	text3d5.computeBoundingBox();
-// 	var centerOffset = -0.5 * ( text3d5.boundingBox.max.x - text3d5.boundingBox.min.x );
-
-// 	var textMaterial5 = new THREE.MeshBasicMaterial( { color: 'rgb(253, 221, 10)', overdraw: 0.1 });
-// 	text5 = new THREE.Mesh( text3d5, textMaterial5 );
-
-// 	text5.position.x = centerOffset;
-// 	text5.position.y = 30;
-// 	text5.position.z = 300;
-
-// 	//Gives the text an angle
-// 	text5.rotation.x = 150;
-// 	//text2.rotation.y = Math.PI * 2;
-
-// 	group = new THREE.Object3D();
-// 	group.add( text5 );
-// 	scene.add( group );
-
-// //----------------------6th sentence-----------------------------
-
-// 	var text3d6 = new THREE.TextGeometry( theText6, {
-// 		size: 12,
-// 		//height seems to change the volume of the text
-// 		height: 5,
-// 		curveSegments: 5,
-// 		font: "helvetiker"
-// 	});
-
-// 	text3d6.computeBoundingBox();
-// 	var centerOffset = -0.5 * ( text3d6.boundingBox.max.x - text3d6.boundingBox.min.x );
-
-// 	var textMaterial6 = new THREE.MeshBasicMaterial( { color: 'rgb(253, 221, 10)', overdraw: 0.1 });
-// 	text6 = new THREE.Mesh( text3d6, textMaterial6 );
-
-// 	text6.position.x = centerOffset;
-// 	text6.position.y = 20;
-// 	text6.position.z = 300;
-
-// 	//Gives the text an angle
-// 	text6.rotation.x = 150;
-// 	//text2.rotation.y = Math.PI * 2;
-
-// 	group = new THREE.Object3D();
-// 	group.add( text6 );
-// 	scene.add( group );
-
-// //---------------------------------------------------------------
-
-// 	var text3d = new THREE.TextGeometry( theText, {
-// 		size: 50,
-// 		height: 10,
-// 		curveSegments: 5,
-// 		font: "helvetiker"
-
-// 	});
-
-// 	text3d.computeBoundingBox();
-// 	var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
-
-// 	// var textMaterial = new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, overdraw: 0.5 } );
-// 	//The previous color of the text was randomised but I wanted it to be the Star Wars yellow.
-// 	var textMaterial = new THREE.MeshBasicMaterial( { color: 'rgb(253, 221, 0)', overdraw: 0.1 } );
-// 	//overdraw is the width of the 3D letters;
-// 	text = new THREE.Mesh( text3d, textMaterial );
-
-// 	text.position.x = centerOffset;
-// 	text.position.y = 100;
-// 	text.position.z = 200;
-
-// 	//Gives the text an angle
-// 	text.rotation.x = 150;
-// 	text.rotation.y = Math.PI * 2;
-
-// 	group = new THREE.Object3D();
-// 	group.add( text );
-
-// 	scene.add( group );
 
 	createStats();
 
@@ -228,10 +56,8 @@ function createStats() {
 function createIntroText() {
 	var paragraph = [];
 
-	var longTimeAgo1 = "Em uma sala de aula na UFRJ,";
-	var longTimeAgo2 = "em pleno verao...";
-	paragraph.push(longTimeAgo1);
-	paragraph.push(longTimeAgo2);
+	paragraph.push("Em uma sala de aula na UFRJ,");
+	paragraph.push("em pleno verao ...");
 
 	for (var i = 0; i <= 1; i++) {
 		var text3d = new THREE.TextGeometry( paragraph[i], {
@@ -245,14 +71,77 @@ function createIntroText() {
 		var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
 		// overdraw is the width of the 3d letters
 		var textMaterial = new THREE.MeshBasicMaterial( { color: 'rgb(80, 241, 242)', overdraw: 0.1} );
-		// var textMaterial = new THREE.MeshLambertMaterial( { color: 0x50F1F2 } );
 		text = new THREE.Mesh( text3d, textMaterial );
 
 		text.position.x = centerOffset;
 		text.position.y = 150 - 30*i;
 		text.position.z = -100;
 
-		wholeText.push(text);
+		group = new THREE.Object3D();
+		group.add( text );
+		groups.push(group);
+		scene.add( group );
+	}
+}
+
+function createLogo() {
+	var texture = THREE.ImageUtils.loadTexture("images/space-shooter.png");
+	var material = new THREE.MeshBasicMaterial({ map : texture });
+	plane =  new THREE.Mesh(new THREE.PlaneGeometry(622, 200), material);
+
+	plane.position.x = 0;
+	plane.position.y = 150;
+	plane.position.z = -100;
+
+	scene.add(plane);
+	console.log(scene.children);
+
+	console.log(plane);
+}
+
+function createParagraph() {
+	var paragraph = [];
+
+	var title = "Episodio VIII";
+	paragraph.push(title);
+
+	paragraph.push("Turmoil has engulfed the");
+	paragraph.push("Galatic Republic. The taxation");
+	paragraph.push("of trade routed to outlying star");
+	paragraph.push("systems is in dispute.");
+
+	var size = 20;
+	for (var i = 0; i < paragraph.length; i++) {
+
+		if (paragraph[i] == title)	
+			size = 40;
+		else
+			size = 20;
+
+		var text3d = new THREE.TextGeometry( paragraph[i], {
+			size: size,
+			height: 1,
+			curveSegments: 5,
+			font: "helvetiker"
+		});
+
+		text3d.computeBoundingBox();
+		var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
+		// overdraw is the width of the 3d letters
+		var textMaterial = new THREE.MeshBasicMaterial( { color: 'rgb(244, 190, 25)', overdraw: 0.1} );
+		// var textMaterial = new THREE.MeshLambertMaterial( { color: 0x50F1F2 } );
+		text = new THREE.Mesh( text3d, textMaterial );
+
+		text.position.x = centerOffset;
+		text.position.y = -10*i;
+		text.position.z = 300;
+
+		if (i == 0)
+			text.position.y = 60 - 10*i;
+
+		text.rotation.x = 200;
+
+		console.log(text.position);
 
 		group = new THREE.Object3D();
 		group.add( text );
@@ -274,12 +163,42 @@ function animate() {
 	render();
 	stats.update();
 
-	if (clock.getElapsedTime() >= 5 && groups.length > 0){
+	if (clock.getElapsedTime() >= 5 && clearIntro) {
+		clearIntro = false;
 		var size = groups.length;
 		for (var i = 0; i < size; i++){
 			// groups[i].children[0].material.opacity = 0;
 			scene.remove(groups[0]);
 			groups.splice(0, 1);
+		}
+		sound.play();
+	}
+
+	if (clock.getElapsedTime() >= 7.7 && startLogo) {
+		startLogo = false;
+		createLogo();
+	}
+
+	if (clock.getElapsedTime() >= 15 && startParagraph) {
+		startParagraph = false;
+		createParagraph();
+	}
+}
+
+function moveLogo() {
+	plane.position.z -= 2;
+	plane.scale.x -= 0.0012;
+	plane.scale.y -= 0.0012;
+}
+
+function moveParagraph() {
+	for (var i = 0; i < 6; i++) {
+		var speed = [10,12,14,16,18,20];
+		var delta = [1800, 1500, 1200, 900, 900, 900];
+		for (var j = 0; j < groups.length; j++) {
+			groups[j].children[0].position.y += i / delta[j];
+			groups[j].children[0].position.z -= i / speed[j];
+			groups[j].children[0].rotation.x -= 0.00001;
 		}
 	}
 }
@@ -287,20 +206,14 @@ function animate() {
 function render() {
 	renderer.autoClear = false;
 	renderer.clear();
-	// Makes the text go slower and disappear
-	// for(var i = 0; i < 6; i++){
-	//  	text.position.z -= i / 4
-	//  	text2.position.z -= i / 4
-	//  	text3.position.z -= i / 5
-	//  	text4.position.z -= i / 6
-	//  	text5.position.z -= i / 7
-	//  	text6.position.z -= i / 8
-	// }
-	// for(var i = 0; i < 6; i++){
-	// 	for (var i = 0; i < wholeText.length; i++) {
-	// 		wholeText[i].position.z -= i/4;
-	// 	}
-	// }
+
+	if (!startParagraph) {
+		moveParagraph();
+	}
+
+	if (!startLogo) {
+		moveLogo();
+	}
 
 	renderer.render( scene, camera );
 }

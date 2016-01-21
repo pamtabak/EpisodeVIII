@@ -56,12 +56,12 @@ function createStats() {
 function createIntroText() {
 	var paragraph = [];
 
-	paragraph.push("Em uma sala de aula na UFRJ,");
-	paragraph.push("em pleno verao ...");
+	paragraph.push("In a classroom at UFRJ, in the");
+	paragraph.push("middle of the summer ...");
 
 	for (var i = 0; i <= 1; i++) {
 		var text3d = new THREE.TextGeometry( paragraph[i], {
-			size: 20,
+			size: 16,
 			height: 1,
 			curveSegments: 5,
 			font: "helvetiker"
@@ -94,9 +94,6 @@ function createLogo() {
 	plane.position.z = -100;
 
 	scene.add(plane);
-	console.log(scene.children);
-
-	console.log(plane);
 }
 
 function createParagraph() {
@@ -105,10 +102,20 @@ function createParagraph() {
 	var title = "Episodio VIII";
 	paragraph.push(title);
 
-	paragraph.push("Turmoil has engulfed the");
-	paragraph.push("Galatic Republic. The taxation");
-	paragraph.push("of trade routed to outlying star");
-	paragraph.push("systems is in dispute.");
+	paragraph.push("You are in control of a intergalatic spaceship.");
+	paragraph.push("Your mission is to penetrate the enemy forces");
+	paragraph.push("and cause the most damage you can. Remember,");
+	paragraph.push("they are well armed and instructed to kill you.");
+
+	paragraph.push("As you keep moving forward, your mission");
+	paragraph.push("may become harder. Move carefully and look");
+	paragraph.push("for bonus itens as they appear in outter space");
+
+	paragraph.push("Use your abilities and weapons to return.");
+	paragraph.push("home at one piece and with your mission");
+	paragraph.push("completed. You are our last hope.");
+
+	paragraph.push("May the force be with you....");
 
 	var size = 20;
 	for (var i = 0; i < paragraph.length; i++) {
@@ -139,9 +146,16 @@ function createParagraph() {
 		if (i == 0)
 			text.position.y = 60 - 10*i;
 
-		text.rotation.x = 200;
+		if (i >= 5)
+			text.position.y = -30 - 10*i;
 
-		console.log(text.position);
+		if (i >= 8)
+			text.position.y = -60 - 10*i;
+
+		if (i == 11) 
+			text.position.y = -90 - 10*i;
+
+		text.rotation.x = 200;
 
 		group = new THREE.Object3D();
 		group.add( text );
@@ -193,8 +207,8 @@ function moveLogo() {
 
 function moveParagraph() {
 	for (var i = 0; i < 6; i++) {
-		var speed = [10,12,14,16,18,20];
-		var delta = [1800, 1500, 1200, 900, 900, 900];
+		var speed = [10,12,14,16,18,20,22,24,26,28,30,32];
+		var delta = [1800, 1500, 1200, 900, 900, 900, 900, 900, 900, 900, 900, 900];
 		for (var j = 0; j < groups.length; j++) {
 			groups[j].children[0].position.y += i / delta[j];
 			groups[j].children[0].position.z -= i / speed[j];

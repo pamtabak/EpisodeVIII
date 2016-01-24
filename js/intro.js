@@ -86,7 +86,7 @@ function createIntroText() {
 
 function createLogo() {
 	var texture = THREE.ImageUtils.loadTexture("images/space-shooter.png");
-	var material = new THREE.MeshBasicMaterial({ map : texture });
+	var material = new THREE.MeshBasicMaterial({ map : texture, transparent: true });
 	plane =  new THREE.Mesh(new THREE.PlaneGeometry(622, 200), material);
 
 	plane.position.x = 0;
@@ -99,7 +99,7 @@ function createLogo() {
 function createParagraph() {
 	var paragraph = [];
 
-	var title = "Episodio VIII";
+	var title = "Episode VIII";
 	paragraph.push(title);
 
 	paragraph.push("You are in control of a intergalatic spaceship.");
@@ -111,11 +111,11 @@ function createParagraph() {
 	paragraph.push("may become harder. Move carefully and look");
 	paragraph.push("for bonus itens as they appear in outter space");
 
-	paragraph.push("Use your abilities and weapons to return.");
+	paragraph.push("Use your abilities and weapons to return");
 	paragraph.push("home at one piece and with your mission");
 	paragraph.push("completed. You are our last hope.");
 
-	paragraph.push("May the force be with you....");
+	paragraph.push("May the force be with you...");
 
 	var size = 20;
 	for (var i = 0; i < paragraph.length; i++) {
@@ -201,8 +201,8 @@ function animate() {
 
 function moveLogo() {
 	plane.position.z -= 2;
-	plane.scale.x -= 0.0012;
-	plane.scale.y -= 0.0012;
+	plane.scale.x    -= 0.0012;
+	plane.scale.y    -= 0.0012;
 }
 
 function moveParagraph() {

@@ -204,7 +204,7 @@ function animate() {
 			scene.remove(groups[0]);
 			groups.splice(0, 1);
 		}
-		// sound.play();
+		sound.play();
 	}
 
 	if (clock.getElapsedTime() >= 7.7 && startLogo) {
@@ -261,13 +261,14 @@ function onMouseLeftButtonDown(event) {
 	var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
 	vector.unproject(camera);
 
-	// raycaster.setFromCamera( mouse, camera );
 	raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
 
 	var intersects = raycaster.intersectObjects(scene.children);
-	console.log(intersects);
-	if (raycaster.intersectObjects(scene.children)) {
-
-		console.log("button pressed");
+	if (intersects.length > 0) {
+		var clickedObject = intersects[0].object;
+		if (clickedObject.name === "SkipButton") {
+			// go to menu page
+			location.replace("menu.html");	
+		}
 	}
 }

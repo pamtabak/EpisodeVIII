@@ -9,9 +9,11 @@ var clearIntro = true;
 var startLogo = true;
 var startParagraph = true;
 
-var plane;
-
+var plane, skipPlane;
+var raycaster;
 var sound;
+
+var mouse = new THREE.Vector2(), INTERSECTED;
 
 init();
 animate();
@@ -32,6 +34,9 @@ function init() {
 	renderer.setSize( window.innerWidth, window.innerHeight );	
 	container.appendChild( renderer.domElement );
 
+	// initialize raycaster
+	raycaster = new THREE.Raycaster();
+
 	// initialize clock
 	clock = new THREE.Clock();
 
@@ -43,7 +48,7 @@ function init() {
 	createStats();
 
 	window.addEventListener( 'resize', onWindowResize, false );
-
+	document.addEventListener( 'mousedown' , onMouseLeftButtonDown, false );
 }
 
 function createStats() {
@@ -82,6 +87,20 @@ function createIntroText() {
 		groups.push(group);
 		scene.add( group );
 	}
+
+	createSkipButton();
+}
+
+function createSkipButton(){
+	var texture = THREE.ImageUtils.loadTexture("images/skip.png");
+	var material = new THREE.MeshBasicMaterial({ map : texture, transparent: true });
+	skipPlane =  new THREE.Mesh(new THREE.PlaneGeometry(50, 70), material);
+
+	skipPlane.position.x = 230;
+	skipPlane.position.y = 270;
+	skipPlane.position.z = -100;
+	skipPlane.name       = "SkipButton";
+	scene.add(skipPlane);
 }
 
 function createLogo() {
@@ -185,7 +204,7 @@ function animate() {
 			scene.remove(groups[0]);
 			groups.splice(0, 1);
 		}
-		sound.play();
+		// sound.play();
 	}
 
 	if (clock.getElapsedTime() >= 7.7 && startLogo) {
@@ -230,4 +249,25 @@ function render() {
 	}
 
 	renderer.render( scene, camera );
+}
+
+function onMouseLeftButtonDown(event) {
+	event.preventDefault();
+
+	mouse.x = (event.clientX / window.innerWidth) * 2 -1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+	// Get 3D vector from 3D mouse position using 'unproject' function
+	var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+	vector.unproject(camera);
+
+	// raycaster.setFromCamera( mouse, camera );
+	raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+	var intersects = raycaster.intersectObjects(scene.children);
+	console.log(intersects);
+	if (raycaster.intersectObjects(scene.children)) {
+
+		console.log("button pressed");
+	}
 }

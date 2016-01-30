@@ -1,8 +1,11 @@
 var container, stats;
 var scene, camera, renderer, raycaster;
-var planeStart, planeDifficulty, planeInstructions, planeCredits;
+var planeBack;
 var raycaster;
 var mouse = new THREE.Vector2(), INTERSECTED;
+var group, text;
+var groups = [];
+var sound;
 
 init();
 animate();
@@ -26,8 +29,13 @@ function init() {
 	// initialize raycaster
 	raycaster = new THREE.Raycaster();
 
+	// initialize audio
+	sound = new Audio("sounds/intro.mp3");
+	//sound.play();
+
 	createStats();
 	createButtons();
+	createParagraph();
 
 	window.addEventListener( 'resize', onWindowResize, false );
 	document.addEventListener( 'mousedown' , onMouseLeftButtonDown, false );
@@ -35,45 +43,63 @@ function init() {
 
 function createButtons(){
 	
-	// Start
-	var texture  = THREE.ImageUtils.loadTexture("images/start.png");
+	// Back
+	var texture  = THREE.ImageUtils.loadTexture("images/back.png");
 	var material = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeStart   =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
-	planeStart.position.x = 0;
-	planeStart.position.y = 250;
-	planeStart.position.z = -100;
-	planeStart.name = "Start";
-	scene.add(planeStart);
+	planeBack    =  new THREE.Mesh(new THREE.PlaneGeometry(50, 70), material);
+	planeBack.position.x = 230;
+	planeBack.position.y = 270;
+	planeBack.position.z = -100;
+	planeBack.name = "BackButton";
+	scene.add(planeBack);
+}
 
-	// Difficulty
-	texture         = THREE.ImageUtils.loadTexture("images/difficulty.png");
-	material        = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeDifficulty =  new THREE.Mesh(new THREE.PlaneGeometry(200, 70), material);
-	planeDifficulty.position.x = 0;
-	planeDifficulty.position.y = 190;
-	planeDifficulty.position.z = -100;
-	planeDifficulty.name = "Difficulty";
-	scene.add(planeDifficulty);
+function createParagraph() {
+	var paragraph = [];
 
-	// Instructions
-	texture           = THREE.ImageUtils.loadTexture("images/instructions.png");
-	material          = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeInstructions = new THREE.Mesh(new THREE.PlaneGeometry(220, 70), material);
-	planeInstructions.position.x = 0;
-	planeInstructions.position.y = 130;
-	planeInstructions.position.z = -100;
-	planeInstructions.name = "Instructions";
-	scene.add(planeInstructions);
+	paragraph.push("This project was developed by");
+	paragraph.push("Eric Reis Figueiredo and Pamela Tabak,");
+	// paragraph.push("as a Computer Graphics project");
+	paragraph.push("at Universidade Federal do Rio De Janeiro,")
+	paragraph.push("class of 2015.2");
 
-	// Credits
-	texture      = THREE.ImageUtils.loadTexture("images/credits.png");
-	material     = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeCredits = new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
-	planeCredits.position.x = 0;
-	planeCredits.position.y = 70;
-	planeCredits.position.z = -100;
-	planeCredits.name = "Credits";
-	scene.add(planeCredits);
+	for (var i = 0; i < paragraph.length; i++) {
+		var text3d = new THREE.TextGeometry( paragraph[i], {
+			size: 20,
+			height: 1,
+			curveSegments: 5,
+			font: "helvetiker"
+		});
+
+		text3d.computeBoundingBox();
+		var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
+		// overdraw is the width of the 3d letters
+		var textMaterial = new THREE.MeshBasicMaterial( { color: 'rgb(244, 190, 25)', overdraw: 0.1} );
+		text = new THREE.Mesh( text3d, textMaterial );
+
+		text.position.x = centerOffset;
+		text.position.y = -30*i;
+		text.position.z = -200;
+
+		text.rotation.x = 200;
+
+		group = new THREE.Object3D();
+		group.add( text );
+		groups.push(group);
+		scene.add( group );
+	}
+}
+
+function moveParagraph() {
+	for (var i = 0; i < 6; i++) {
+		var speed = [10,12,14,16,18,20,22];
+		var delta = [1800, 1500, 1200, 900, 900];
+		for (var j = 0; j < groups.length; j++) {
+			groups[j].children[0].position.y += i / delta[j];
+			groups[j].children[0].position.z -= i / speed[j];
+			groups[j].children[0].rotation.x -= 0.00001;
+		}
+	}
 }
 
 function createStats() {
@@ -101,6 +127,8 @@ function render() {
 	renderer.autoClear = false;
 	renderer.clear();
 
+	moveParagraph();
+
 	renderer.render( scene, camera );
 }
 
@@ -119,21 +147,9 @@ function onMouseLeftButtonDown(event) {
 	var intersects = raycaster.intersectObjects(scene.children);
 	if (intersects.length > 0) {
 		var clickedObject = intersects[0].object;
-		if (clickedObject.name === "Start") {
+		if (clickedObject.name === "BackButton") {
 			// go to menu page
-			location.replace("game.html");	
-		}
-		if (clickedObject.name === "Difficulty") {
-			// go to menu page
-			location.replace("difficulty.html");	
-		}
-		if (clickedObject.name === "Instructions") {
-			// go to menu page
-			location.replace("instructions.html");	
-		}
-		if (clickedObject.name === "Credits") {
-			// go to menu page
-			location.replace("credits.html");	
+			location.replace("menu.html");	
 		}
 	}
 }

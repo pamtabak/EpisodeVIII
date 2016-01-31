@@ -1,13 +1,8 @@
 var container, stats;
 var scene, camera, renderer, raycaster;
-var planeBack;
+var planeEasy, planeMedium, planeHard, planeBack;
 var raycaster;
 var mouse = new THREE.Vector2(), INTERSECTED;
-var group, text;
-var groups = [];
-var sound;
-
-var clock;
 
 init();
 animate();
@@ -31,23 +26,46 @@ function init() {
 	// initialize raycaster
 	raycaster = new THREE.Raycaster();
 
-	// initialize audio
-	// sound = new Audio("sounds/intro.mp3");
-	// sound.play();
-
-	// initialize clock
-	clock = new THREE.Clock();
-
 	createStats();
 	createButtons();
-	createParagraph();
 
 	window.addEventListener( 'resize', onWindowResize, false );
 	document.addEventListener( 'mousedown' , onMouseLeftButtonDown, false );
 }
 
-function createButtons(){
-	
+function createButtons() {
+
+	// Easy
+	texture   = THREE.ImageUtils.loadTexture("images/easy.png");
+	material  = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	planeEasy =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
+	planeEasy.position.x = 0;
+	planeEasy.position.y = 230;
+	planeEasy.position.z = -100;
+	planeEasy.name = "Easy";
+	scene.add(planeEasy);
+
+	// Medium
+	texture     = THREE.ImageUtils.loadTexture("images/medium.png");
+	material    = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	planeMedium =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
+	planeMedium.position.x = 0;
+	planeMedium.position.y = 160;
+	planeMedium.position.z = -100;
+	planeMedium.name = "Medium";
+	scene.add(planeMedium);
+
+	// Hard
+	texture   = THREE.ImageUtils.loadTexture("images/hard.png");
+	material  = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	planeHard =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
+	planeHard.position.x = 0;
+	planeHard.position.y = 90;
+	planeHard.position.z = -100;
+	planeHard.name = "Hard";
+	scene.add(planeHard);
+
+
 	// Back
 	var texture  = THREE.ImageUtils.loadTexture("images/back.png");
 	var material = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
@@ -57,54 +75,6 @@ function createButtons(){
 	planeBack.position.z = -100;
 	planeBack.name = "BackButton";
 	scene.add(planeBack);
-}
-
-function createParagraph() {
-	var paragraph = [];
-
-	paragraph.push("This project was developed by");
-	paragraph.push("Eric Reis Figueiredo and Pamela Tabak,");
-	// paragraph.push("as a Computer Graphics project");
-	paragraph.push("at Universidade Federal do Rio De Janeiro,")
-	paragraph.push("class of 2015.2");
-
-	for (var i = 0; i < paragraph.length; i++) {
-		var text3d = new THREE.TextGeometry( paragraph[i], {
-			size: 20,
-			height: 1,
-			curveSegments: 5,
-			font: "helvetiker"
-		});
-
-		text3d.computeBoundingBox();
-		var centerOffset = -0.5 * ( text3d.boundingBox.max.x - text3d.boundingBox.min.x );
-		// overdraw is the width of the 3d letters
-		var textMaterial = new THREE.MeshBasicMaterial( { color: 'rgb(244, 190, 25)', overdraw: 0.1} );
-		text = new THREE.Mesh( text3d, textMaterial );
-
-		text.position.x = centerOffset;
-		text.position.y = -30*i;
-		text.position.z = -200;
-
-		text.rotation.x = 200;
-
-		group = new THREE.Object3D();
-		group.add( text );
-		groups.push(group);
-		scene.add( group );
-	}
-}
-
-function moveParagraph() {
-	for (var i = 0; i < 6; i++) {
-		var speed = [10,12,14,16,18,20,22];
-		var delta = [1800, 1500, 1200, 900, 900];
-		for (var j = 0; j < groups.length; j++) {
-			groups[j].children[0].position.y += i / delta[j];
-			groups[j].children[0].position.z -= i / speed[j];
-			groups[j].children[0].rotation.x -= 0.00001;
-		}
-	}
 }
 
 function createStats() {
@@ -126,19 +96,11 @@ function animate() {
 
 	render();
 	stats.update();
-
-	if (clock.getElapsedTime() >= 30) {
-		// go to menu page
-		location.replace("menu.html");
-	}
-
 }
 
 function render() {
 	renderer.autoClear = false;
 	renderer.clear();
-
-	moveParagraph();
 
 	renderer.render( scene, camera );
 }
@@ -158,6 +120,10 @@ function onMouseLeftButtonDown(event) {
 	var intersects = raycaster.intersectObjects(scene.children);
 	if (intersects.length > 0) {
 		var clickedObject = intersects[0].object;
+		if (clickedObject.name === "Easy") {
+			// go to menu page
+			location.replace("game.html");	
+		}
 		if (clickedObject.name === "BackButton") {
 			// go to menu page
 			location.replace("menu.html");	

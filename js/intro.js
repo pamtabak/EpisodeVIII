@@ -4,7 +4,6 @@ var group, text, text2;
 var groups = [];
 
 var clock;
-var divTime = document.getElementById("time");
 
 var clearIntro = true;
 var startLogo = true;
@@ -50,10 +49,6 @@ function init() {
 
 	window.addEventListener( 'resize', onWindowResize, false );
 	document.addEventListener( 'mousedown' , onMouseLeftButtonDown, false );
-}
-
-function render() {
-	divTime.innerHTML = clock.getElapsedTime();
 }
 
 function createStats() {

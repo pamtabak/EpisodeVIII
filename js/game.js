@@ -1,23 +1,74 @@
 // Get the canvas element from our HTML above
-var canvas = document.getElementById("renderCanvas");
+var canvas  = document.getElementById("renderCanvas");
+var divTime = document.getElementById("clock");
 
 // Load the BABYLON 3D engine
 var engine = new BABYLON.Engine(canvas, true);
 
+var stats, container;
+
+var clock;
+var scene;
+
 init();
+animate();
 
-  function init() {
+function init() {
 
-  	 // Now, call the createScene function that you just finished creating
-     var scene = createScene();
-      // Register a render loop to repeatedly render the scene
+  container = document.createElement( 'div' );
+  document.body.appendChild( container );
+
+  // Now, call the createScene function that you just finished creating
+  scene = createScene();
+    // Register a render loop to repeatedly render the scene
       engine.runRenderLoop(function () {
-         scene.render();
-      });
+        scene.render();
+    });
 
-  	// Watch for browser/canvas resize events
-    window.addEventListener("resize", function () { engine.resize(); });
+  createStats();
+
+  // initialize clock
+  clock = new THREE.Clock();  
+
+  // Watch for browser/canvas resize events
+  window.addEventListener("resize", function () { engine.resize(); });
+}
+
+function animate() {
+  requestAnimationFrame( animate );
+
+  render();
+
+  stats.update();
+}
+
+function render() {
+  var elapsedTime = clock.getElapsedTime().toString().split(".")[0];
+  if (elapsedTime < 60) {
+    if (elapsedTime.length == 1)
+      elapsedTime = "0" + elapsedTime;
+    elapsedTime = "00:" + elapsedTime;
   }
+  else {
+    var minutes = Math.floor(elapsedTime/60);
+    if (minutes.toString().length == 1)
+      minutes = "0" + minutes;
+    var seconds = elapsedTime%60;
+    if (seconds.toString().length == 1)
+      seconds = "0" + seconds;
+    elapsedTime = minutes + ":" + seconds;
+  }
+  divTime.innerHTML = elapsedTime;
+
+  scene.render();
+}
+
+function createStats() {
+  stats = new Stats();
+  stats.domElement.style.position = 'absolute';
+  stats.domElement.style.top = '0px';
+  container.appendChild( stats.domElement );
+}
 
 function createScene() {
     // Now create a basic Babylon Scene object 

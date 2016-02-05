@@ -4,6 +4,7 @@ var group, text, text2;
 var groups = [];
 
 var clock;
+var divTime = document.getElementById("time");
 
 var clearIntro = true;
 var startLogo = true;
@@ -51,6 +52,10 @@ function init() {
 	document.addEventListener( 'mousedown' , onMouseLeftButtonDown, false );
 }
 
+function render() {
+	divTime.innerHTML = clock.getElapsedTime();
+}
+
 function createStats() {
 	stats = new Stats();
 	stats.domElement.style.position = 'absolute';
@@ -92,9 +97,9 @@ function createIntroText() {
 }
 
 function createSkipButton(){
-	var texture = THREE.ImageUtils.loadTexture("images/skip.png");
+	var texture  = THREE.ImageUtils.loadTexture("images/skip.png");
 	var material = new THREE.MeshBasicMaterial({ map : texture, transparent: true });
-	skipPlane =  new THREE.Mesh(new THREE.PlaneGeometry(50, 70), material);
+	skipPlane    =  new THREE.Mesh(new THREE.PlaneGeometry(50, 40), material);
 
 	skipPlane.position.x = 230;
 	skipPlane.position.y = 270;
@@ -104,9 +109,9 @@ function createSkipButton(){
 }
 
 function createLogo() {
-	var texture = THREE.ImageUtils.loadTexture("images/space-shooter.png");
+	var texture  = THREE.ImageUtils.loadTexture("images/space-shooter.png");
 	var material = new THREE.MeshBasicMaterial({ map : texture, transparent: true });
-	plane =  new THREE.Mesh(new THREE.PlaneGeometry(622, 200), material);
+	plane        =  new THREE.Mesh(new THREE.PlaneGeometry(622, 200), material);
 
 	plane.position.x = 0;
 	plane.position.y = 150;

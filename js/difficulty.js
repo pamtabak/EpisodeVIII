@@ -6,8 +6,7 @@ var raycaster;
 var mouse = new THREE.Vector2(), INTERSECTED;
 var selected = null;
 
-init();
-animate();
+document.addEventListener("DOMContentLoaded", function () { init(), animate(); }, false);
 
 function init() {
 	container = document.createElement( 'div' );
@@ -38,23 +37,23 @@ function init() {
 function createButtons() {
 
 	// Easy
-	texture   = THREE.ImageUtils.loadTexture("images/easy.png");
-	material  = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeEasy =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
+	texture              = THREE.ImageUtils.loadTexture("images/easy.png");
+	material             = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	planeEasy            =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
 	planeEasy.position.x = 0;
 	planeEasy.position.y = 230;
 	planeEasy.position.z = -100;
-	planeEasy.name = "Easy";
+	planeEasy.name       = "Easy";
 	scene.add(planeEasy);
 
 	// Medium
-	texture     = THREE.ImageUtils.loadTexture("images/medium.png");
-	material    = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeMedium =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
+	texture                = THREE.ImageUtils.loadTexture("images/medium.png");
+	material               = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	planeMedium            =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
 	planeMedium.position.x = 0;
 	planeMedium.position.y = 160;
 	planeMedium.position.z = -100;
-	planeMedium.name = "Medium";
+	planeMedium.name       = "Medium";
 	scene.add(planeMedium);
 
 	// Hard
@@ -71,7 +70,7 @@ function createButtons() {
 	// Back
 	var texture          = THREE.ImageUtils.loadTexture("images/back.png");
 	var material         = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeBack            =  new THREE.Mesh(new THREE.PlaneGeometry(50, 70), material);
+	planeBack            =  new THREE.Mesh(new THREE.PlaneGeometry(80, 70), material);
 	planeBack.position.x = 230;
 	planeBack.position.y = 270;
 	planeBack.position.z = -100;

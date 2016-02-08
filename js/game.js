@@ -12,6 +12,7 @@ var clock;
 var scene;
 var camera;
 var spaceship, planets, skybox;
+var spaceshipSpeed;
 var healthBar, health;
 
 var difficulty;
@@ -87,27 +88,14 @@ function createStats() {
 
 function createScene() {
     var scene = new BABYLON.Scene(engine);
+    engine.isPointerLock = true;
 
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
-    camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 100, 150), scene);
-    camera.setTarget(new BABYLON.Vector3(0, 0, -200));
-    camera.attachControl(canvas, true);
-
-    // camera.ellipsoid       = new BABYLON.Vector3(2, 2, 2);
-    // camera.checkCollisions = true;
-    // camera.applyGravity    = true;
-    // camera.speed = 1;
-    // camera.inertia = 0.9;
-    // camera.angularInertia = 0;
-    // camera.angularSensibility = 1000;
-    // camera.layerMask = 2;
-    // scene.activeCamera = camera;
+    camera = createCamera(scene);
 
     var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
-
-    // Dim the light a small amount
-    light.intensity = 0.5;
+    light.intensity = 1.0;
 
     createSkybox(scene);
     createSpaceship(scene);
@@ -115,6 +103,29 @@ function createScene() {
     createHealthStatus(scene);
 
    	return scene;	
+}
+
+function createCamera (scene) {
+	camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 100, 150), scene);
+    camera.setTarget(new BABYLON.Vector3(0, 0, -200));
+    camera.attachControl(canvas, true);
+
+    // Remap keys to move with WASD
+    camera.keysUp 			  = [87]; // W
+    camera.keysDown 		  = [83]; // S
+    camera.keysLeft 		  = [65]; // A
+    camera.keysRight 		  = [68]; // D
+
+    camera.ellipsoid       	  = new BABYLON.Vector3(2, 2, 2);
+    camera.checkCollisions 	  = true;
+    camera.speed 		   	  = 2.0;
+    camera.inertia 		   	  = 0.9;
+    camera.angularInertia 	  = 0;
+    camera.angularSensibility = 2500;
+    camera.layerMask 		  = 2;
+    scene.activeCamera 		  = camera;
+
+    return camera;
 }
 
 function createSkybox (scene) {
@@ -138,15 +149,19 @@ function createSkybox (scene) {
 function createSpaceship (scene) {
 	// Load spaceship model
     BABYLON.SceneLoader.ImportMesh("", "assets/", "spaceship.babylon", scene, function (meshes) {
-    	spaceship          = meshes[0];
-		spaceship.scaling  = new BABYLON.Vector3(0.08,0.08,0.08);
-		spaceship.position = new BABYLON.Vector3(0,0,0);
+    	spaceship          	  = meshes[0];
+		spaceship.scaling  	  = new BABYLON.Vector3(0.08, 0.08, 0.08);
+		spaceship.position 	  = new BABYLON.Vector3(0, -45, 120);
+		spaceship.rotationQuaternion = null;
+		spaceship.rotation.x = (8.0 / 4.0) * Math.PI;
+		spaceship.rotation.y = Math.PI;
+		spaceship.parent	  = scene.activeCamera;
     });
 }
 
 function createPlanets (scene) {
 	// initializing return object
-	var planets      = [];
+	var planets      		= [];
 
     var earth               = BABYLON.Mesh.CreateSphere("planet1", 50.0, 100.0, scene);
     earth.position    		= new BABYLON.Vector3(200, 100, -700);
@@ -163,12 +178,13 @@ function createPlanets (scene) {
 }
 
 function createHealthStatus (scene) {
-	healthBar           = BABYLON.Mesh.CreateBox("rectangle", 8, scene);
-	healthBar.scaling.x = 8;
-	healthBar.position  = new BABYLON.Vector3(-90, 120, -90);
-	var material        = new BABYLON.StandardMaterial("healthTexture", scene);
-	healthBar.material  = material;
+	healthBar              = BABYLON.Mesh.CreateBox("rectangle", 8, scene);
+	healthBar.scaling.x    = 8;
+	healthBar.position     = new BABYLON.Vector3(-90, 120, -90);
+	var material           = new BABYLON.StandardMaterial("healthTexture", scene);
+	healthBar.material     = material;
 	material.diffuseColor  = new BABYLON.Color3(0, 255.0, 0.0);
+	healthBar.parent = spaceship;
 }
 
 function updateHealthStatus () {
@@ -230,9 +246,6 @@ function initMovement() {
 }
 
 function moveSpaceship(speedX, speedY) {
-	spaceship.position.x -= speedX;
-	spaceship.position.z -= speedY;
-
-	camera.position.x -= speedX;
-	camera.position.z -= speedY;
+	// spaceship.position.x -= speedX;
+	// spaceship.position.z -= speedY;
 }

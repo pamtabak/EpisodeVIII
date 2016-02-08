@@ -1,17 +1,18 @@
 // Get the canvas element from our HTML above
-var canvas  = document.getElementById("renderCanvas");
-var divTime = document.getElementById("clock");
+var canvas    = document.getElementById("renderCanvas");
+var divTime   = document.getElementById("clock");
+var container;
 
 // Load the BABYLON 3D engine
 var engine = new BABYLON.Engine(canvas, true);
 
-var stats, container;
+var stats;
 
 var clock;
 var scene;
 var camera;
 var spaceship, planets, skybox;
-var moveLeft, moveRight, moveForward, moveBackward;
+var healthBar, health;
 
 document.addEventListener("DOMContentLoaded", function () { init(), animate(); }, false);
 
@@ -32,13 +33,9 @@ function init() {
 	// initialize clock
 	clock = new THREE.Clock();
 
-	// initializing spaceship movement variables
-	moveLeft     = false;
-	moveRight    = false;
-	moveForward  = false;
-	moveBackward = false;  
-
+	// initializing spaceship variables
 	spaceshipSpeed = 5.0;
+	health         = 1.0;
 
 	initMovement();
 
@@ -56,10 +53,17 @@ function animate() {
 }
 
 function render() {
+	// Updating timer
 	var elapsedTime = clock.getElapsedTime().toString().split(".")[0];
 	if (elapsedTime < 60) {
 		if (elapsedTime.length == 1) { elapsedTime = "0" + elapsedTime; }
 		elapsedTime = "00:" + elapsedTime;
+
+		if (elapsedTime == "00:15"){
+			health = 0.9;
+			console.log(health);
+			updateHealthStatus();
+		}
 	}
 	else {
 		var minutes = Math.floor(elapsedTime/60);
@@ -68,7 +72,6 @@ function render() {
 		if (seconds.toString().length == 1) { seconds = "0" + seconds; }
 		elapsedTime = minutes + ":" + seconds;
 	}
-	
 	divTime.innerHTML = elapsedTime;
 
 	scene.render();
@@ -82,14 +85,23 @@ function createStats() {
 }
 
 function createScene() {
-
     var scene = new BABYLON.Scene(engine);
 
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 100, 150), scene);
     camera.setTarget(new BABYLON.Vector3(0, 0, -200));
-    camera.attachControl(canvas, false);
+    camera.attachControl(canvas, true);
+
+    // camera.ellipsoid       = new BABYLON.Vector3(2, 2, 2);
+    // camera.checkCollisions = true;
+    // camera.applyGravity    = true;
+    // camera.speed = 1;
+    // camera.inertia = 0.9;
+    // camera.angularInertia = 0;
+    // camera.angularSensibility = 1000;
+    // camera.layerMask = 2;
+    // scene.activeCamera = camera;
 
     var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
 
@@ -99,6 +111,7 @@ function createScene() {
     createSkybox(scene);
     createSpaceship(scene);
     createPlanets(scene);
+    createHealthStatus(scene);
 
    	return scene;	
 }
@@ -134,15 +147,49 @@ function createPlanets (scene) {
 	// initializing return object
 	var planets      = [];
 
-    var planet1      = BABYLON.Mesh.CreateSphere("planet1", 50.0, 100.0, scene);
-    planet1.position = new BABYLON.Vector3(200, 100, -700);
-    planets.push(planet1);
+    var earth               = BABYLON.Mesh.CreateSphere("planet1", 50.0, 100.0, scene);
+    earth.position    		= new BABYLON.Vector3(200, 100, -700);
+    var material      		= new BABYLON.StandardMaterial("planet1texture", scene);
+    earth.material        	= material;
+    material.diffuseTexture = new BABYLON.Texture("assets/earth.jpg", scene);
+    planets.push(earth);
 
     var planet2      = BABYLON.Mesh.CreateSphere("planet2", 50.0, 200.0, scene);
     planet2.position = new BABYLON.Vector3(-400, -500, -400);
     planets.push(planet2);
 
     return planets;
+}
+
+function createHealthStatus (scene) {
+	healthBar           = BABYLON.Mesh.CreateBox("rectangle", 8, scene);
+	healthBar.scaling.x = 8;
+	healthBar.position  = new BABYLON.Vector3(-90, 120, -90);
+	var material        = new BABYLON.StandardMaterial("healthTexture", scene);
+	healthBar.material  = material;
+	material.diffuseColor  = new BABYLON.Color3(0, 255.0, 0.0);
+}
+
+function updateHealthStatus () {
+	// health >= 0.7 GREEN
+	// health >= 0.5 and health < 0.7 YELLOW
+	// health < 0.5 RED
+	if (health >= 0.7) {
+		// var materialColor       = new BABYLON.StandardMaterial("textureColor", scene);
+		// materialColor.diffuseColor  = new BABYLON.Color3(0, 255.0, 0.0);
+
+		// var materialTransparent = new BABYLON.StandardMaterial("textureTransparent", scene);
+		// materialTransparent.diffuseColor  = new BABYLON.Color3(0, 255.0, 0.0);
+		// materialTransparent.alpha = 0.1; 
+
+		// var multimat = new BABYLON.MultiMaterial("multi", scene);
+		// multimat.subMaterials.push(materialColor);
+		// multimat.subMaterials.push(materialTransparent);
+		// healthBar.subMeshes = [];
+		// var verticesCount = healthBar.getTotalVertices(); // Since this is a box, this number is usually 24
+		// healthBar.subMeshes.push(new BABYLON.SubMesh(0, 0, verticesCount, 0, 23*, healthBar));
+		// healthBar.subMeshes.push(new BABYLON.SubMesh(1, 0, verticesCount, 23*healthBar, 15, healthBar));
+	}
 }
 
 function initMovement() {
@@ -169,10 +216,6 @@ function initMovement() {
     };
 
     var onKeyUp = function(evt) {
-    	moveLeft     = false;
-		moveRight    = false;
-		moveForward  = false;
-		moveBackward = false;
     }
 
 	// Register events with the right Babylon function

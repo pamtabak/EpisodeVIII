@@ -1,8 +1,10 @@
 var container, stats;
 var scene, camera, renderer, raycaster;
 var planeEasy, planeMedium, planeHard, planeBack;
+var planeStart = null;
 var raycaster;
 var mouse = new THREE.Vector2(), INTERSECTED;
+var selected = null;
 
 init();
 animate();
@@ -56,25 +58,36 @@ function createButtons() {
 	scene.add(planeMedium);
 
 	// Hard
-	texture   = THREE.ImageUtils.loadTexture("images/hard.png");
-	material  = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeHard =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
+	texture   			 = THREE.ImageUtils.loadTexture("images/hard.png");
+	material  			 = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	planeHard            = new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
 	planeHard.position.x = 0;
 	planeHard.position.y = 90;
 	planeHard.position.z = -100;
-	planeHard.name = "Hard";
+	planeHard.name       = "Hard";
 	scene.add(planeHard);
 
 
 	// Back
-	var texture  = THREE.ImageUtils.loadTexture("images/back.png");
-	var material = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
-	planeBack    =  new THREE.Mesh(new THREE.PlaneGeometry(50, 70), material);
+	var texture          = THREE.ImageUtils.loadTexture("images/back.png");
+	var material         = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	planeBack            =  new THREE.Mesh(new THREE.PlaneGeometry(50, 70), material);
 	planeBack.position.x = 230;
 	planeBack.position.y = 270;
 	planeBack.position.z = -100;
-	planeBack.name = "BackButton";
+	planeBack.name       = "BackButton";
 	scene.add(planeBack);
+}
+
+function createStart() {
+	var texture           = THREE.ImageUtils.loadTexture("images/start.png");
+	var material          = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	planeStart            =  new THREE.Mesh(new THREE.PlaneGeometry(100, 70), material);
+	planeStart.position.x = 230;
+	planeStart.position.y = 50;
+	planeStart.position.z = -100;
+	planeStart.name       = "StartButton";
+	scene.add(planeStart);
 }
 
 function createStats() {
@@ -102,6 +115,9 @@ function render() {
 	renderer.autoClear = false;
 	renderer.clear();
 
+	if (selected != null && planeStart == null)
+		createStart();
+
 	renderer.render( scene, camera );
 }
 
@@ -120,13 +136,27 @@ function onMouseLeftButtonDown(event) {
 	var intersects = raycaster.intersectObjects(scene.children);
 	if (intersects.length > 0) {
 		var clickedObject = intersects[0].object;
-		if (clickedObject.name === "Easy") {
-			// go to menu page
-			location.replace("game.html");	
-		}
-		if (clickedObject.name === "BackButton") {
-			// go to menu page
-			location.replace("menu.html");	
+		if (clickedObject.name === "Easy")       { drawBorder(clickedObject); }
+		if (clickedObject.name === "Medium")     { drawBorder(clickedObject); }
+		if (clickedObject.name === "Hard")       { drawBorder(clickedObject); }
+		if (clickedObject.name === "BackButton") { location.replace("menu.html"); }	
+		if (clickedObject.name === "StartButton") {
+			//window.localstorage.setItem( clickedObject.name );
+			localStorage.setItem("difficulty", selected.name);
+			location.replace("game.html");
 		}
 	}
+}
+
+function drawBorder(clickedObject) {
+	var texture  = THREE.ImageUtils.loadTexture("images/boarder.png");
+	var material = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
+	if (selected == null)
+		selected    =  new THREE.Mesh(new THREE.PlaneGeometry(150, 80), material);
+	else
+		scene.remove(selected);
+
+	selected.position.copy(clickedObject.position);
+	selected.name = clickedObject.name;
+	scene.add(selected);
 }

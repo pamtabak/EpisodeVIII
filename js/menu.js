@@ -120,20 +120,11 @@ function onMouseLeftButtonDown(event) {
 	if (intersects.length > 0) {
 		var clickedObject = intersects[0].object;
 		if (clickedObject.name === "Start") {
-			// go to menu page
+			localStorage.setItem("difficulty", "");
 			location.replace("game.html");	
 		}
-		if (clickedObject.name === "Difficulty") {
-			// go to menu page
-			location.replace("difficulty.html");	
-		}
-		if (clickedObject.name === "Instructions") {
-			// go to menu page
-			location.replace("instructions.html");	
-		}
-		if (clickedObject.name === "Credits") {
-			// go to menu page
-			location.replace("credits.html");	
-		}
+		if (clickedObject.name === "Difficulty")   { location.replace("difficulty.html");	}
+		if (clickedObject.name === "Instructions") { location.replace("instructions.html");	}
+		if (clickedObject.name === "Credits")      { location.replace("credits.html"); }
 	}
 }

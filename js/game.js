@@ -14,6 +14,8 @@ var camera;
 var spaceship, planets, skybox;
 var healthBar, health;
 
+var difficulty;
+
 document.addEventListener("DOMContentLoaded", function () { init(), animate(); }, false);
 
 function init() {
@@ -24,9 +26,7 @@ function init() {
 	// Now, call the createScene function that you just finished creating
 	scene = createScene();
 	// Register a render loop to repeatedly render the scene
-	  engine.runRenderLoop(function () {
-	    scene.render();
-	});
+	engine.runRenderLoop(function () { scene.render(); });
 
 	createStats();
 
@@ -36,6 +36,8 @@ function init() {
 	// initializing spaceship variables
 	spaceshipSpeed = 5.0;
 	health         = 1.0;
+	difficulty     = localStorage.getItem("difficulty");
+	if (difficulty === "") { difficulty = "Easy"; }
 
 	initMovement();
 
@@ -59,11 +61,10 @@ function render() {
 		if (elapsedTime.length == 1) { elapsedTime = "0" + elapsedTime; }
 		elapsedTime = "00:" + elapsedTime;
 
-		if (elapsedTime == "00:15"){
-			health = 0.9;
-			console.log(health);
-			updateHealthStatus();
-		}
+		// if (elapsedTime == "00:15"){
+		// 	health = 0.9;
+		// 	updateHealthStatus();
+		// }
 	}
 	else {
 		var minutes = Math.floor(elapsedTime/60);

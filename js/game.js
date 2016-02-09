@@ -1,6 +1,7 @@
 // Get the canvas element from our HTML above
-var canvas    = document.getElementById("renderCanvas");
-var divTime   = document.getElementById("clock");
+var canvas      = document.getElementById("renderCanvas");
+var divTime     = document.getElementById("clock");
+var divHealth   = document.getElementById("health");
 var container;
 
 // Load the BABYLON 3D engine
@@ -62,10 +63,10 @@ function render() {
 		if (elapsedTime.length == 1) { elapsedTime = "0" + elapsedTime; }
 		elapsedTime = "00:" + elapsedTime;
 
-		// if (elapsedTime == "00:15"){
-		// 	health = 0.9;
-		// 	updateHealthStatus();
-		// }
+		if (elapsedTime == "00:15"){
+			health = 0.3;
+			updateHealthStatus();
+		}
 	}
 	else {
 		var minutes = Math.floor(elapsedTime/60);
@@ -100,7 +101,7 @@ function createScene() {
     createSkybox(scene);
     createSpaceship(scene);
     createPlanets(scene);
-    createHealthStatus(scene);
+    createHealthStatus();
 
    	return scene;	
 }
@@ -177,35 +178,33 @@ function createPlanets (scene) {
     return planets;
 }
 
-function createHealthStatus (scene) {
-	healthBar              = BABYLON.Mesh.CreateBox("rectangle", 8, scene);
-	healthBar.scaling.x    = 8;
-	healthBar.position     = new BABYLON.Vector3(-90, 120, -90);
-	var material           = new BABYLON.StandardMaterial("healthTexture", scene);
-	healthBar.material     = material;
-	material.diffuseColor  = new BABYLON.Color3(0, 255.0, 0.0);
-	healthBar.parent = spaceship;
+function createHealthStatus () {
+	divHealth.innerHTML = "";
+	for (var i = 0; i < 10; i++){
+		divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(0,255,0);stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
+	}
 }
 
-function updateHealthStatus () {
-	// health >= 0.7 GREEN
-	// health >= 0.5 and health < 0.7 YELLOW
-	// health < 0.5 RED
-	if (health >= 0.7) {
-		// var materialColor       = new BABYLON.StandardMaterial("textureColor", scene);
-		// materialColor.diffuseColor  = new BABYLON.Color3(0, 255.0, 0.0);
-
-		// var materialTransparent = new BABYLON.StandardMaterial("textureTransparent", scene);
-		// materialTransparent.diffuseColor  = new BABYLON.Color3(0, 255.0, 0.0);
-		// materialTransparent.alpha = 0.1; 
-
-		// var multimat = new BABYLON.MultiMaterial("multi", scene);
-		// multimat.subMaterials.push(materialColor);
-		// multimat.subMaterials.push(materialTransparent);
-		// healthBar.subMeshes = [];
-		// var verticesCount = healthBar.getTotalVertices(); // Since this is a box, this number is usually 24
-		// healthBar.subMeshes.push(new BABYLON.SubMesh(0, 0, verticesCount, 0, 23*, healthBar));
-		// healthBar.subMeshes.push(new BABYLON.SubMesh(1, 0, verticesCount, 23*healthBar, 15, healthBar));
+function updateHealthStatus() {
+	divHealth.innerHTML = "";
+	// health >= 0.7
+	if (health >= 0.7){
+		for (var i = 0; i < health * 10; i++)
+			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(0,255,0);stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
+		for (var i = health * 10; i < 10; i++)
+			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(0,255,0);opacity:0.4;stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
+	}
+	else if (health >= 0.5 && health < 0.7) {
+		for (var i = 0; i < health * 10; i++)
+			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,255,0);stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
+		for (var i = health * 10; i < 10; i++)
+			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,255,0);opacity:0.4;stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
+	}
+	else {
+		for (var i = 0; i < health * 10; i++)
+			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,0,0);stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
+		for (var i = health * 10; i < 10; i++)
+			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,0,0);opacity:0.4;stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
 	}
 }
 

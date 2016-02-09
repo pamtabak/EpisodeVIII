@@ -6,3 +6,9 @@
     color: yellow;
     text-shadow: 2px 2px 0 black;
 }
+
+#health {
+	position: absolute;
+    right: 20%;
+    top: 5%;
+}

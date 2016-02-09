@@ -71,7 +71,7 @@ function createButtons() {
 	var texture          = THREE.ImageUtils.loadTexture("images/back.png");
 	var material         = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
 	planeBack            =  new THREE.Mesh(new THREE.PlaneGeometry(80, 70), material);
-	planeBack.position.x = 230;
+	planeBack.position.x = 200;
 	planeBack.position.y = 270;
 	planeBack.position.z = -100;
 	planeBack.name       = "BackButton";
@@ -82,7 +82,7 @@ function createStart() {
 	var texture           = THREE.ImageUtils.loadTexture("images/start.png");
 	var material          = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
 	planeStart            =  new THREE.Mesh(new THREE.PlaneGeometry(100, 70), material);
-	planeStart.position.x = 230;
+	planeStart.position.x = 200;
 	planeStart.position.y = 50;
 	planeStart.position.z = -100;
 	planeStart.name       = "StartButton";

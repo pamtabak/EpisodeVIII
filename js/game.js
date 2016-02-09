@@ -4,6 +4,8 @@ var divTime     = document.getElementById("clock");
 var divHealth   = document.getElementById("health");
 var container;
 
+var controlEnabled = false;
+
 // Load the BABYLON 3D engine
 var engine = new BABYLON.Engine(canvas, true);
 
@@ -42,6 +44,7 @@ function init() {
 	if (difficulty === "") { difficulty = "Easy"; }
 
 	initMovement();
+	initPointerLock();
 
 	// Watch for browser/canvas resize events
 	window.addEventListener("resize", function () { engine.resize(); });
@@ -62,11 +65,6 @@ function render() {
 	if (elapsedTime < 60) {
 		if (elapsedTime.length == 1) { elapsedTime = "0" + elapsedTime; }
 		elapsedTime = "00:" + elapsedTime;
-
-		if (elapsedTime == "00:15"){
-			health = 0.3;
-			updateHealthStatus();
-		}
 	}
 	else {
 		var minutes = Math.floor(elapsedTime/60);
@@ -89,13 +87,13 @@ function createStats() {
 
 function createScene() {
     var scene = new BABYLON.Scene(engine);
-    engine.isPointerLock = true;
+    // engine.isPointerLock = true;
 
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
     camera = createCamera(scene);
 
-    var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+	var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 1.0;
 
     createSkybox(scene);
@@ -119,7 +117,7 @@ function createCamera (scene) {
 
     camera.ellipsoid       	  = new BABYLON.Vector3(2, 2, 2);
     camera.checkCollisions 	  = true;
-    camera.speed 		   	  = 2.0;
+    camera.speed 		   	  = 10.0;
     camera.inertia 		   	  = 0.9;
     camera.angularInertia 	  = 0;
     camera.angularSensibility = 2500;
@@ -150,30 +148,32 @@ function createSkybox (scene) {
 function createSpaceship (scene) {
 	// Load spaceship model
     BABYLON.SceneLoader.ImportMesh("", "assets/", "spaceship.babylon", scene, function (meshes) {
-    	spaceship          	  = meshes[0];
-		spaceship.scaling  	  = new BABYLON.Vector3(0.08, 0.08, 0.08);
-		spaceship.position 	  = new BABYLON.Vector3(0, -45, 120);
+    	spaceship          	         = meshes[0];
+		spaceship.scaling  	         = new BABYLON.Vector3(0.08, 0.08, 0.08);
+		spaceship.position 	         = new BABYLON.Vector3(0, -45, 120);
 		spaceship.rotationQuaternion = null;
-		spaceship.rotation.x = (8.0 / 4.0) * Math.PI;
-		spaceship.rotation.y = Math.PI;
-		spaceship.parent	  = scene.activeCamera;
+		spaceship.rotation.x         = (8.0 / 4.0) * Math.PI;
+		spaceship.rotation.y         = Math.PI;
+		spaceship.parent	         = scene.activeCamera;
     });
 }
 
 function createPlanets (scene) {
 	// initializing return object
 	var planets      		= [];
+	var planetTextures = ["mercury.jpg", "venus.jpg", "earth.jpg", "mars.jpg",
+						  "jupiter.jpg", "saturn.jpg", "uranus.jpg", "neptune.jpg", 
+						  "pluto.jpg"];
+	var planetSizes = [200.0, 600.0, 800.0, 500.0, 1500.0, 1200.0, 1000.0, 900.0, 150.0];
 
-    var earth               = BABYLON.Mesh.CreateSphere("planet1", 50.0, 100.0, scene);
-    earth.position    		= new BABYLON.Vector3(200, 100, -700);
-    var material      		= new BABYLON.StandardMaterial("planet1texture", scene);
-    earth.material        	= material;
-    material.diffuseTexture = new BABYLON.Texture("assets/earth.jpg", scene);
-    planets.push(earth);
-
-    var planet2      = BABYLON.Mesh.CreateSphere("planet2", 50.0, 200.0, scene);
-    planet2.position = new BABYLON.Vector3(-400, -500, -400);
-    planets.push(planet2);
+	for (var i = 0; i < planetTextures.length; ++i) {
+		var planet 				= BABYLON.Mesh.CreateSphere(planetTextures[i].split(".")[0], 50.0, planetSizes[i], scene);
+		planet.position 		= new BABYLON.Vector3(getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0));
+		var material 			= new BABYLON.StandardMaterial(planetTextures[i].split(".")[0] + "texture", scene);
+		planet.material 		= material;
+		material.diffuseTexture = new BABYLON.Texture("assets/" + planetTextures[i], scene);
+		planets.push(planet);
+	}
 
     return planets;
 }
@@ -187,7 +187,6 @@ function createHealthStatus () {
 
 function updateHealthStatus() {
 	divHealth.innerHTML = "";
-	// health >= 0.7
 	if (health >= 0.7){
 		for (var i = 0; i < health * 10; i++)
 			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(0,255,0);stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
@@ -208,25 +207,42 @@ function updateHealthStatus() {
 	}
 }
 
+function createWarning (scene) {
+	// It's a trap! You're out of the safety zone. 
+	// Go back or you'll be redirected
+	var background      = BABYLON.Mesh.CreateGround("background", 100, 100, 100, scene, false);
+	var material        = new BABYLON.StandardMaterial("background", scene);
+	background.material = material;
+	
+	var backgroundTexture      = new BABYLON.DynamicTexture("dynamic texture", 512, scene, true);
+	material.diffuseTexture    = backgroundTexture;
+	material.specularColor     = new BABYLON.Color3(0, 0, 0);
+	material.reflectionTexture = new BABYLON.CubeTexture("assets/space", scene);
+	material.backFaceCulling   = false;
+
+	backgroundTexture.drawText("It's a trap! You're out of the safety zone.", null, 10, "bold 70px Segoe UI", "yellow", "#555555");
+	backgroundTexture.drawText("Go back or you'll be redirected", null, 100, "bold 70px Segoe UI", "yellow", "#555555");
+}
+
 function initMovement() {
 	// When a key is pressed, set the movement
     var onKeyDown = function(evt) {
     	switch (evt.keyCode) {
     		case 65:
     			// key 'a' presseds
-	    		moveSpaceship(-spaceshipSpeed, 0);
+	    		// moveSpaceship(-spaceshipSpeed, 0);
 				break;  
 			case 68:
     			// key 'd' pressed
-	    		moveSpaceship(spaceshipSpeed, 0);
+	    		// moveSpaceship(spaceshipSpeed, 0);
 				break;
 			case 83:
     			// key 's' presseds
-	    		moveSpaceship(0, -spaceshipSpeed);
+	    		// moveSpaceship(0, -spaceshipSpeed);
 				break;  
 			case 87:
     			// key 'w' pressed
-	    		moveSpaceship(0, spaceshipSpeed);
+	    		// moveSpaceship(0, spaceshipSpeed);
 				break; 
     	}
     };
@@ -244,7 +260,41 @@ function initMovement() {
     }]);
 }
 
-function moveSpaceship(speedX, speedY) {
-	// spaceship.position.x -= speedX;
-	// spaceship.position.z -= speedY;
+function initPointerLock () {
+	// On click event, request pointer lock
+    canvas.addEventListener("click", function(evt) {
+        canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+        if (canvas.requestPointerLock) {
+            canvas.requestPointerLock();
+        }
+    }, false);
+
+    // Attach events to the document
+    document.addEventListener("pointerlockchange", pointerLockChange, false);
+    document.addEventListener("mspointerlockchange", pointerLockChange, false);
+    document.addEventListener("mozpointerlockchange", pointerLockChange, false);
+    document.addEventListener("webkitpointerlockchange", pointerLockChange, false);
 }
+
+function pointerLockChange (event) {
+	controlEnabled = (     document.mozPointerLockElement === canvas
+                        || document.webkitPointerLockElement === canvas
+                        || document.msPointerLockElement === canvas
+                        || document.pointerLockElement === canvas);
+
+
+	 if (!controlEnabled) {
+           camera.detachControl(canvas);
+        } else {
+            camera.attachControl(canvas);
+        }
+}
+
+function getRandomNumber (min, max) {
+	return Math.random() * (max - min + 1) + min;
+}
+
+// function moveSpaceship(speedX, speedY) {
+// 	spaceship.position.x -= speedX;
+// 	spaceship.position.z -= speedY;
+// }

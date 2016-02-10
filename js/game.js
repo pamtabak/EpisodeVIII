@@ -9,6 +9,8 @@ var controlEnabled = false;
 // Load the BABYLON 3D engine
 var engine = new BABYLON.Engine(canvas, true);
 
+var gunshot;
+
 var stats;
 
 var clock;
@@ -18,7 +20,8 @@ var spaceship, planets, skybox;
 var spaceshipSpeed;
 var healthBar, health;
 
-var difficulty;
+var asteroids = [];
+var maxNumberOfAsteroids;
 
 document.addEventListener("DOMContentLoaded", function () { init(), animate(); }, false);
 
@@ -40,8 +43,10 @@ function init() {
 	// initializing spaceship variables
 	spaceshipSpeed = 5.0;
 	health         = 1.0;
-	difficulty     = localStorage.getItem("difficulty");
+	
+	var difficulty     = localStorage.getItem("difficulty");
 	if (difficulty === "") { difficulty = "Easy"; }
+	maxNumberOfAsteroids = getMaxNumberOfAsteroids (difficulty);
 
 	initMovement();
 	initPointerLock();
@@ -49,6 +54,12 @@ function init() {
 	// Watch for browser/canvas resize events
 	window.addEventListener("resize", function () { engine.resize(); });
 
+	window.addEventListener("mousedown", function(evt) {
+		// left click to fire
+		if (evt.button === 0) {
+			gunshot.play();
+		}
+	});
 }
 
 function animate() {
@@ -99,7 +110,10 @@ function createScene() {
     createSkybox(scene);
     createSpaceship(scene);
     createPlanets(scene);
+    //createAsteroid(scene);
     createHealthStatus();
+
+    gunshot = new BABYLON.Sound("gunshot", "sounds/Blaster-Solo.wav", scene);
 
    	return scene;	
 }
@@ -176,6 +190,42 @@ function createPlanets (scene) {
 	}
 
     return planets;
+}
+
+function getMaxNumberOfAsteroids (difficulty) {
+	var number;
+	if (difficulty === "Easy")   { number = 30; }
+	if (difficulty === "Medium") { number = 40; }
+	if (difficulty === "Hard")   { number = 50; }
+
+	return number;
+}
+
+function createAsteroid (scene) {
+	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 18.0, 36.0, scene);
+	asteroid.position        = new BABYLON.Vector3(-200,-200,-200);
+	var bumpMaterial         = new BABYLON.StandardMaterial("asteroidTexture", scene);
+	bumpMaterial.bumpTexture = new BABYLON.Texture("assets/asteroidBump.jpg", scene);
+
+	bumpMaterial.diffuseColor  = new BABYLON.Color3(0, 0, 1);
+	bumpMaterial.specularColor = new BABYLON.Color3(0, 1, 0);
+	bumpMaterial.specularPower = 10;
+
+	bumpMaterial.bumpTexture.level   = 10;
+	bumpMaterial.bumpTexture.uScale  = 3;
+	bumpMaterial.bumpTexture.vScale  = 3;
+	bumpMaterial.bumpTexture.uAng    = 3; 
+	bumpMaterial.bumpTexture.vAng    = 3; 
+	bumpMaterial.bumpTexture.wAng    = 1; 
+	bumpMaterial.bumpTexture.uOffset = 3;
+	bumpMaterial.bumpTexture.vOffset = 3;
+
+	bumpMaterial.bumpTexture.wrapU = 10; 
+	bumpMaterial.bumpTexture.wrapV = 10; 
+
+	asteroid.material = bumpMaterial;
+
+	asteroids.push(asteroid);
 }
 
 function createHealthStatus () {

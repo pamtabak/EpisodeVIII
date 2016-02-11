@@ -86,7 +86,16 @@ function render() {
 	}
 	divTime.innerHTML = elapsedTime;
 
+	movePlanets();
+	// planets is undefined
+
 	scene.render();
+}
+
+function movePlanets () {
+	for (var i = 0; i < planets.length; i++) {
+		planets[i].rotation.x += getRandomNumber(-Math.PI / 4096, Math.PI / 4096)
+	}
 }
 
 function createStats() {
@@ -110,7 +119,7 @@ function createScene() {
     createSkybox(scene);
     createSpaceship(scene);
     createPlanets(scene);
-    //createAsteroid(scene);
+    createAsteroid(scene);
     createHealthStatus();
 
     gunshot = new BABYLON.Sound("gunshot", "sounds/Blaster-Solo.wav", scene);
@@ -174,7 +183,7 @@ function createSpaceship (scene) {
 
 function createPlanets (scene) {
 	// initializing return object
-	var planets      		= [];
+	planets      		= [];
 	var planetTextures = ["mercury.jpg", "venus.jpg", "earth.jpg", "mars.jpg",
 						  "jupiter.jpg", "saturn.jpg", "uranus.jpg", "neptune.jpg", 
 						  "pluto.jpg"];
@@ -188,8 +197,6 @@ function createPlanets (scene) {
 		material.diffuseTexture = new BABYLON.Texture("assets/" + planetTextures[i], scene);
 		planets.push(planet);
 	}
-
-    return planets;
 }
 
 function getMaxNumberOfAsteroids (difficulty) {

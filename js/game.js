@@ -23,6 +23,9 @@ var healthBar, health;
 var asteroids = [];
 var maxNumberOfAsteroids;
 var asteroidSpeed;
+var asteroidRespawn;
+
+var counter = 0;
 
 document.addEventListener("DOMContentLoaded", function () { init(), animate(); }, false);
 
@@ -49,6 +52,7 @@ function init() {
 	if (difficulty === null) { difficulty = "Easy"; }
 	maxNumberOfAsteroids = getMaxNumberOfAsteroids (difficulty);
 	asteroidSpeed = getAsteroidSpeed (difficulty);
+	asteroidRespawn = getAsteroidRespawn (difficulty);
 	console.log(asteroidSpeed);
 
 	initMovement();
@@ -74,21 +78,29 @@ function animate() {
 function render() {
 	// Updating timer
 	var elapsedTime = clock.getElapsedTime().toString().split(".")[0];
+	var minutes = Math.floor(elapsedTime / 60);
+	var seconds = elapsedTime % 60;
 	if (elapsedTime < 60) {
 		if (elapsedTime.length == 1) { elapsedTime = "0" + elapsedTime; }
 		elapsedTime = "00:" + elapsedTime;
 	}
 	else {
-		var minutes = Math.floor(elapsedTime/60);
 		if (minutes.toString().length == 1) { minutes = "0" + minutes; }
-		var seconds = elapsedTime%60;
 		if (seconds.toString().length == 1) { seconds = "0" + seconds; }
 		elapsedTime = minutes + ":" + seconds;
 	}
 	divTime.innerHTML = elapsedTime;
 
+	if (seconds % asteroidRespawn) {
+		if (asteroids.length < maxNumberOfAsteroids) { 
+			createAsteroid(scene); 
+		}
+	}
+
 	movePlanets();
 	moveAsteroids();
+
+	removeAsteroids();
 
 	scene.render();
 }
@@ -96,16 +108,29 @@ function render() {
 function movePlanets () {
 	for (var i = 0; i < planets.length; i++) {
 		planets[i].rotation.x += Math.PI / 1024;
-		//var rot = new BABYLON.Vector3.RotationFromAxis(BABYLON.Axis.X, 1.0, BABYLON.Space.LOCAL);
+		// var rot = new BABYLON.Vector3.RotationFromAxis(BABYLON.Axis.X, 1.0, BABYLON.Space.LOCAL);
 		// planets[i].rotation = rot;
 	}
 }
 
 function moveAsteroids () {
 	for (var i = 0; i < asteroids.length; i++) {
-		asteroids[i].position.x += asteroidSpeed;
-		asteroids[i].position.y += asteroidSpeed;
+		// asteroids[i].position.x += asteroidSpeed;
+		// asteroids[i].position.y += asteroidSpeed;
 		// asteroids[i].position.z += asteroidSpeed;
+
+		asteroids[i][0].translate(asteroids[i][1], asteroidSpeed, BABYLON.Space.LOCAL);
+	}
+}
+
+function removeAsteroids () {
+	for (var i = 0; i < asteroids.length; i++) {
+		if (asteroids[i][0].position.x < -5000.0 || asteroids[i][0].position.x > 5000.0 ||
+			asteroids[i][0].position.y < -5000.0 || asteroids[i][0].position.y > 5000.0 ||
+			asteroids[i][0].position.z < -5000.0 || asteroids[i][0].position.z > 5000.0) {
+				asteroids[i][0].dispose();
+				asteroids.splice(i, 1);
+		}
 	}
 }
 
@@ -122,7 +147,7 @@ function createScene() {
 
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
-    camera = createCamera(scene);
+    createCamera(scene);
 
 	var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 1.0;
@@ -130,7 +155,6 @@ function createScene() {
     createSkybox(scene);
     createSpaceship(scene);
     createPlanets(scene);
-    createAsteroid(scene);
     createHealthStatus();
 
     gunshot = new BABYLON.Sound("gunshot", "sounds/Blaster-Solo.wav", scene);
@@ -157,8 +181,6 @@ function createCamera (scene) {
     camera.angularSensibility = 2500;
     camera.layerMask 		  = 2;
     scene.activeCamera 		  = camera;
-
-    return camera;
 }
 
 function createSkybox (scene) {
@@ -186,7 +208,7 @@ function createSpaceship (scene) {
 		spaceship.scaling  	         = new BABYLON.Vector3(0.08, 0.08, 0.08);
 		spaceship.position 	         = new BABYLON.Vector3(0, -45, 120);
 		spaceship.rotationQuaternion = null;
-		spaceship.rotation.x         = (8.0 / 4.0) * Math.PI;
+		spaceship.rotation.x         = 2.0 * Math.PI;
 		spaceship.rotation.y         = Math.PI;
 		spaceship.parent	         = scene.activeCamera;
     });
@@ -220,21 +242,30 @@ function getMaxNumberOfAsteroids (difficulty) {
 
 function getAsteroidSpeed (difficulty) {
 	var speed;
-	if (difficulty === "Easy")   { speed = 2; }
-	if (difficulty === "Medium") { speed = 3; }
-	if (difficulty === "Hard")   { speed = 4; }
+	if (difficulty === "Easy")   { speed = 5; }
+	if (difficulty === "Medium") { speed = 7; }
+	if (difficulty === "Hard")   { speed = 10; }
 
 	return speed;
 }
 
+function getAsteroidRespawn (difficulty) {
+	var respawn;
+	if (difficulty === "Easy")   { respawn = 5; }
+	if (difficulty === "Medium") { respawn = 4; }
+	if (difficulty === "Hard")   { respawn = 2; }
+
+	return respawn;
+}
+
 function createAsteroid (scene) {
-	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 18.0, 36.0, scene);
-	asteroid.position        = new BABYLON.Vector3(-5000,-5000,-200);
+	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 5.0, 36.0, scene);
+	asteroid.position        = new BABYLON.Vector3(getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000));
 	var bumpMaterial         = new BABYLON.StandardMaterial("asteroidTexture", scene);
 	bumpMaterial.bumpTexture = new BABYLON.Texture("assets/asteroidBump.jpg", scene);
 
-	bumpMaterial.diffuseColor  = new BABYLON.Color3(0, 0, 1);
-	bumpMaterial.specularColor = new BABYLON.Color3(0, 1, 0);
+	bumpMaterial.diffuseColor  = new BABYLON.Color3(0.3, 0.3, 0.3);
+	bumpMaterial.specularColor = new BABYLON.Color3(1, 1, 1);
 	bumpMaterial.specularPower = 10;
 
 	bumpMaterial.bumpTexture.level   = 10;
@@ -251,7 +282,11 @@ function createAsteroid (scene) {
 
 	asteroid.material = bumpMaterial;
 
-	asteroids.push(asteroid);
+	var axis = new BABYLON.Vector3(camera.position.x - asteroid.position.x, camera.position.y - asteroid.position.y, camera.position.z - asteroid.position.z);
+
+	var pair = [asteroid, axis.normalize()];
+
+	asteroids.push(pair);
 }
 
 function createHealthStatus () {

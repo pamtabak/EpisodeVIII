@@ -22,6 +22,7 @@ var healthBar, health;
 
 var asteroids = [];
 var maxNumberOfAsteroids;
+var asteroidSpeed;
 
 document.addEventListener("DOMContentLoaded", function () { init(), animate(); }, false);
 
@@ -45,8 +46,10 @@ function init() {
 	health         = 1.0;
 	
 	var difficulty     = localStorage.getItem("difficulty");
-	if (difficulty === "") { difficulty = "Easy"; }
+	if (difficulty === null) { difficulty = "Easy"; }
 	maxNumberOfAsteroids = getMaxNumberOfAsteroids (difficulty);
+	asteroidSpeed = getAsteroidSpeed (difficulty);
+	console.log(asteroidSpeed);
 
 	initMovement();
 	initPointerLock();
@@ -55,10 +58,8 @@ function init() {
 	window.addEventListener("resize", function () { engine.resize(); });
 
 	window.addEventListener("mousedown", function(evt) {
-		// left click to fire
-		if (evt.button === 0) {
-			gunshot.play();
-		}
+		// left click to shoot
+		if (evt.button === 0 && controlEnabled) { gunshot.play(); }
 	});
 }
 
@@ -87,14 +88,24 @@ function render() {
 	divTime.innerHTML = elapsedTime;
 
 	movePlanets();
-	// planets is undefined
+	moveAsteroids();
 
 	scene.render();
 }
 
 function movePlanets () {
 	for (var i = 0; i < planets.length; i++) {
-		planets[i].rotation.x += getRandomNumber(-Math.PI / 4096, Math.PI / 4096)
+		planets[i].rotation.x += Math.PI / 1024;
+		//var rot = new BABYLON.Vector3.RotationFromAxis(BABYLON.Axis.X, 1.0, BABYLON.Space.LOCAL);
+		// planets[i].rotation = rot;
+	}
+}
+
+function moveAsteroids () {
+	for (var i = 0; i < asteroids.length; i++) {
+		asteroids[i].position.x += asteroidSpeed;
+		asteroids[i].position.y += asteroidSpeed;
+		// asteroids[i].position.z += asteroidSpeed;
 	}
 }
 
@@ -182,7 +193,6 @@ function createSpaceship (scene) {
 }
 
 function createPlanets (scene) {
-	// initializing return object
 	planets      		= [];
 	var planetTextures = ["mercury.jpg", "venus.jpg", "earth.jpg", "mars.jpg",
 						  "jupiter.jpg", "saturn.jpg", "uranus.jpg", "neptune.jpg", 
@@ -208,9 +218,18 @@ function getMaxNumberOfAsteroids (difficulty) {
 	return number;
 }
 
+function getAsteroidSpeed (difficulty) {
+	var speed;
+	if (difficulty === "Easy")   { speed = 2; }
+	if (difficulty === "Medium") { speed = 3; }
+	if (difficulty === "Hard")   { speed = 4; }
+
+	return speed;
+}
+
 function createAsteroid (scene) {
 	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 18.0, 36.0, scene);
-	asteroid.position        = new BABYLON.Vector3(-200,-200,-200);
+	asteroid.position        = new BABYLON.Vector3(-5000,-5000,-200);
 	var bumpMaterial         = new BABYLON.StandardMaterial("asteroidTexture", scene);
 	bumpMaterial.bumpTexture = new BABYLON.Texture("assets/asteroidBump.jpg", scene);
 
@@ -321,18 +340,17 @@ function initPointerLock () {
 	// On click event, request pointer lock
     canvas.addEventListener("click", function(evt) {
         canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
-        if (canvas.requestPointerLock) {
-            canvas.requestPointerLock();
-        }
+        if (canvas.requestPointerLock) { canvas.requestPointerLock(); }
     }, false);
 
     // Attach events to the document
-    document.addEventListener("pointerlockchange", pointerLockChange, false);
-    document.addEventListener("mspointerlockchange", pointerLockChange, false);
-    document.addEventListener("mozpointerlockchange", pointerLockChange, false);
+    document.addEventListener("pointerlockchange",       pointerLockChange, false);
+    document.addEventListener("mspointerlockchange",     pointerLockChange, false);
+    document.addEventListener("mozpointerlockchange",    pointerLockChange, false);
     document.addEventListener("webkitpointerlockchange", pointerLockChange, false);
 }
 
+// Remove cursor 
 function pointerLockChange (event) {
 	controlEnabled = (     document.mozPointerLockElement === canvas
                         || document.webkitPointerLockElement === canvas
@@ -340,11 +358,8 @@ function pointerLockChange (event) {
                         || document.pointerLockElement === canvas);
 
 
-	 if (!controlEnabled) {
-           camera.detachControl(canvas);
-        } else {
-            camera.attachControl(canvas);
-        }
+	 if (!controlEnabled) { camera.detachControl(canvas); } 
+     else                 { camera.attachControl(canvas); }
 }
 
 function getRandomNumber (min, max) {

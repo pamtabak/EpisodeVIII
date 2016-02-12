@@ -15,10 +15,11 @@ var stats;
 
 var clock;
 var scene;
-var camera;
+var camera, map;
 var spaceship, planets, skybox;
 var spaceshipSpeed;
 var healthBar, health;
+var ground;
 
 var asteroids = [];
 var maxNumberOfAsteroids;
@@ -156,6 +157,7 @@ function createScene() {
     createSpaceship(scene);
     createPlanets(scene);
     createHealthStatus();
+    createMap(scene);
 
     gunshot = new BABYLON.Sound("gunshot", "sounds/Blaster-Solo.wav", scene);
 
@@ -180,7 +182,37 @@ function createCamera (scene) {
     camera.angularInertia 	  = 0;
     camera.angularSensibility = 2500;
     camera.layerMask 		  = 2;
+    camera.viewport           = new BABYLON.Viewport(0, 0, 1.0, 1.0);
+    scene.activeCameras.push(camera);
     scene.activeCamera 		  = camera;
+}
+
+function createMap (scene) {
+	map = new BABYLON.FreeCamera("minimap", new BABYLON.Vector3(0,100,150), scene);
+	// map.setTarget(new BABYLON.Vector3(4000, 4000, 4000));
+
+
+	// map.layerMask = 1;
+	// map.setTarget(new BABYLON.Vector3(0.18,0.18,0.18));
+	// map.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+
+	var size        = 50;
+	map.orthoLeft   = - size;
+	map.orthoRight  =   size;
+	map.orthoTop    =   size;
+	map.orthoBottom = - size;
+
+	map.rotation.x = Math.PI/2;
+
+	var xStart = 0.8;         // 80% from the left
+    var yStart = 0.75;        // 75% from the bottom
+	var width  = 0.99-xStart; // Almost until the right edge of the screen
+    var	height = 1-yStart;    // Until the top edge of the screen
+
+	map.viewport = new BABYLON.Viewport( xStart, yStart, width, height );
+
+	// Add the camera to the list of active cameras of the game
+	scene.activeCameras.push(map);
 }
 
 function createSkybox (scene) {
@@ -210,7 +242,7 @@ function createSpaceship (scene) {
 		spaceship.rotationQuaternion = null;
 		spaceship.rotation.x         = 2.0 * Math.PI;
 		spaceship.rotation.y         = Math.PI;
-		spaceship.parent	         = scene.activeCamera;
+		spaceship.parent	         = camera;
     });
 }
 

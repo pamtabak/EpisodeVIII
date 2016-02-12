@@ -1,6 +1,6 @@
 #clock {
 	position: absolute;
-    right: 20px;
+    right: 50%;
     top: 1%;
     font-size: 50px;
     color: yellow;
@@ -9,6 +9,6 @@
 
 #health {
 	position: absolute;
-    right: 20%;
-    top: 5%;
+    right: 30%;
+    top: 4%;
 }

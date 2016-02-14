@@ -9,6 +9,27 @@
 
 #health {
 	position: absolute;
-    right: 30%;
+    right: 32%;
     top: 4%;
+}
+
+#gunsight {
+	width: 56px;
+	height: 56px;
+	position:absolute;
+	top:50%;
+	left:50%;
+	margin-top:-37px;
+	margin-left:-37px;
+}
+
+#map {
+	width: 30%;
+	height: 35%;
+	position: absolute;
+	top: 0%;
+	right: 0%;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
 }

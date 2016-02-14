@@ -188,7 +188,7 @@ function createCamera (scene) {
 }
 
 function createMap (scene) {
-	map = new BABYLON.FreeCamera("minimap", new BABYLON.Vector3(0,100,150), scene);
+	map = new BABYLON.FreeCamera("minimap", new BABYLON.Vector3(0,800,150), scene);
 	// map.setTarget(new BABYLON.Vector3(4000, 4000, 4000));
 	// map.setTarget(new BABYLON.Vector3(0.18,0.18,0.18));
 	// map.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
@@ -200,37 +200,40 @@ function createMap (scene) {
 	map.orthoBottom = - size;
 
 	map.rotation.x = Math.PI/2;
+	// map.rotation.y = 2 * Math.PI;
+	map.parent = camera;
 
-	var xStart = 0.8;         // 80% from the left
-    var yStart = 0.75;        // 75% from the bottom
-	var width  = 0.99-xStart; // Almost until the right edge of the screen
+	var xStart = 0.7;         // 70% from the left
+    var yStart = 0.65;        // 65% from the bottom
+	var width  = 1-xStart; // Almost until the right edge of the screen
     var	height = 1-yStart;    // Until the top edge of the screen
 
 	map.viewport = new BABYLON.Viewport( xStart, yStart, width, height );
 
 	// Add the camera to the list of active cameras of the game
 	scene.activeCameras.push(map);
+	scene.activeCamera = camera;
 
 	map.layerMask    = 1;
 	camera.layerMask = 2;
 
-	// The representation of player in the minimap
-	var playerOnMap        = BABYLON.Mesh.CreateSphere("playerOnMap", 16, 4, scene);
-	playerOnMap.position.y = 10;
+	// // The representation of player in the minimap
+	// var playerOnMap        = BABYLON.Mesh.CreateSphere("playerOnMap", 16, 4, scene);
+	// playerOnMap.position.y = 10;
 	
-	// The sphere position will be displayed accordingly to the player position
-	playerOnMap.registerBeforeRender(function() {
-	    playerOnMap.position.x = spaceship.position.x;
-	    playerOnMap.position.z = spaceship.position.z;
-	});
+	// // The sphere position will be displayed accordingly to the player position
+	// playerOnMap.registerBeforeRender(function() {
+	//     playerOnMap.position.x = spaceship.position.x;
+	//     playerOnMap.position.z = spaceship.position.z;
+	// });
 
-	var red = new BABYLON.StandardMaterial("red", scene);
-	red.diffuseColor = BABYLON.Color3.Red();
-	red.specularColor = BABYLON.Color3.Black();
-	playerOnMap.material = red;
+	// var red = new BABYLON.StandardMaterial("red", scene);
+	// red.diffuseColor = BABYLON.Color3.Red();
+	// red.specularColor = BABYLON.Color3.Black();
+	// playerOnMap.material = red;
 
-	// spaceship.layerMask = 2; // it claims spaceship is undefinied
-	playerOnMap.layerMask = 1; // 001 in binary : won't be displayed on the player camera, only in the minimap
+	// // spaceship.layerMask = 2; // it claims spaceship is undefinied
+	// playerOnMap.layerMask = 1; // 001 in binary : won't be displayed on the player camera, only in the minimap
 }
 
 function createSkybox (scene) {

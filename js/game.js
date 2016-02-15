@@ -6,6 +6,9 @@ var container;
 
 var controlEnabled = false;
 
+// Variable used to create asteroids within a certain time difference
+var lastSecondAsteroidCreated = 00;
+
 // Load the BABYLON 3D engine
 var engine = new BABYLON.Engine(canvas, true);
 
@@ -91,15 +94,17 @@ function render() {
 		elapsedTime = minutes + ":" + seconds;
 	}
 	divTime.innerHTML = elapsedTime;
-
-	if (seconds % asteroidRespawn) {
-		if (asteroids.length < maxNumberOfAsteroids) { 
+	
+	if ((seconds % asteroidRespawn == 0) && (asteroids.length < maxNumberOfAsteroids) && controlEnabled 
+		&& (lastSecondAsteroidCreated != seconds)) {
+			lastSecondAsteroidCreated = seconds;
 			createAsteroid(scene); 
-		}
 	}
+	console.log(asteroids.length);
 
 	movePlanets();
-	moveAsteroids();
+
+	if (controlEnabled) { moveAsteroids(); }
 
 	removeAsteroids();
 

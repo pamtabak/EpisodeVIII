@@ -149,8 +149,15 @@ function createStats() {
 
 function createScene() {
     var scene = new BABYLON.Scene(engine);
-    scene.enablePhysics(new BABYLON.Vector3(0,0,0), new BABYLON.OimoJSPlugin());		// no gravity
+
+    scene.gravity = new BABYLON.Vector3(0, 0, 0);
+    // scene.enablePhysics(scene.gravity, new BABYLON.OimoJSPlugin());		// no gravity
     // scene.enablePhysics(new BABYLON.Vector3(0,-10,0), new BABYLON.OimoJSPlugin());		// with gravity
+
+    // Enable Collisions
+    scene.collisionsEnabled = true;
+    
+
     // engine.isPointerLock = true;
 
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
@@ -182,8 +189,10 @@ function createCamera (scene) {
     camera.keysLeft 		  = [65]; // A
     camera.keysRight 		  = [68]; // D
 
-    camera.ellipsoid       	  = new BABYLON.Vector3(2, 2, 2);
+    camera.ellipsoid       	  = new BABYLON.Vector3(200, 200, 200);
     camera.checkCollisions 	  = true;
+    camera.applyGravity       = true;
+
     camera.speed 		   	  = 10.0;
     camera.inertia 		   	  = 0.9;
     camera.angularInertia 	  = 0;
@@ -246,6 +255,7 @@ function createMap (scene) {
 function createSkybox (scene) {
 	// The box creation
 	var skybox = BABYLON.Mesh.CreateSphere("skyBox", 100.0, 10000.0, scene);
+	// skybox.checkCollisions = true;
 
 	// The sky creation
 	var skyboxMaterial                               = new BABYLON.StandardMaterial("skyBox", scene);
@@ -268,6 +278,10 @@ function createSpaceship (scene) {
 		spaceship.scaling  	         = new BABYLON.Vector3(0.08, 0.08, 0.08);
 		spaceship.position 	         = new BABYLON.Vector3(0, -45, 120);
 		spaceship.rotationQuaternion = null;
+		spaceship.checkCollisions = true;
+		spaceship.ellipsoid = new BABYLON.Vector3(500, 100, 500);
+		spaceship.ellipsoidOffset = new BABYLON.Vector3(0, 2, 0);
+		spaceship.applyGravity = true;
 		// spaceship.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, {mass:1, friction:0.001, restitution:1.5});
 		spaceship.rotation.x         = 2.0 * Math.PI;
 		spaceship.rotation.y         = Math.PI;
@@ -285,6 +299,7 @@ function createPlanets (scene) {
 	for (var i = 0; i < planetTextures.length; ++i) {
 		var planet 				= BABYLON.Mesh.CreateSphere(planetTextures[i].split(".")[0], 50.0, planetSizes[i], scene);
 		planet.position 		= new BABYLON.Vector3(getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0));
+		planet.checkCollisions = true;
 		// planet.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, {mass:1, friction:0.001, restitution:1.5});
 		var material 			= new BABYLON.StandardMaterial(planetTextures[i].split(".")[0] + "texture", scene);
 		planet.material 		= material;
@@ -323,7 +338,7 @@ function getAsteroidRespawn (difficulty) {
 function createAsteroid (scene) {
 	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 5.0, 36.0, scene);
 	asteroid.position        = new BABYLON.Vector3(getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000));
-	asteroid.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, {mass:1, friction:0.001, restitution:1.5});
+	// asteroid.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, {mass:1, friction:0.001, restitution:1.5});
 	var bumpMaterial         = new BABYLON.StandardMaterial("asteroidTexture", scene);
 	bumpMaterial.bumpTexture = new BABYLON.Texture("assets/asteroidBump.jpg", scene);
 
@@ -415,6 +430,10 @@ function initMovement() {
 	    		// moveSpaceship(0, -spaceshipSpeed);
 				break;  
 			case 87:
+				var forwards = new BABYLON.Vector3(parseFloat(Math.sin(spaceship.rotation.y)) / 5, 0, parseFloat(Math.cos(spaceship.rotation.y)) / 5);
+				// var forward = new BABYLON.Vector3(parseFloat(Math.sin(parseFloat(spaceship.rotation.y))) / 5, 0.5, parseFloat(Math.cos(parseFloat(spaceship.rotation.y))) / 5);
+				forward = forward.negate();
+				spaceship.moveWithCollisions(forward);
     			// key 'w' pressed
 	    		// moveSpaceship(0, spaceshipSpeed);
 				break; 

@@ -100,7 +100,7 @@ function render() {
 			lastSecondAsteroidCreated = seconds;
 			createAsteroid(scene); 
 	}
-	console.log(asteroids.length);
+	// console.log(asteroids.length);
 
 	movePlanets();
 
@@ -149,6 +149,8 @@ function createStats() {
 
 function createScene() {
     var scene = new BABYLON.Scene(engine);
+    scene.enablePhysics(new BABYLON.Vector3(0,0,0), new BABYLON.OimoJSPlugin());		// no gravity
+    // scene.enablePhysics(new BABYLON.Vector3(0,-10,0), new BABYLON.OimoJSPlugin());		// with gravity
     // engine.isPointerLock = true;
 
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
@@ -164,7 +166,7 @@ function createScene() {
     createHealthStatus();
     createMap(scene);
 
-    gunshot = new BABYLON.Sound("gunshot", "sounds/Blaster-Solo.wav", scene);
+    // gunshot = new BABYLON.Sound("gunshot", "sounds/Blaster-Solo.wav", scene);
 
    	return scene;	
 }
@@ -266,6 +268,7 @@ function createSpaceship (scene) {
 		spaceship.scaling  	         = new BABYLON.Vector3(0.08, 0.08, 0.08);
 		spaceship.position 	         = new BABYLON.Vector3(0, -45, 120);
 		spaceship.rotationQuaternion = null;
+		// spaceship.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, {mass:1, friction:0.001, restitution:1.5});
 		spaceship.rotation.x         = 2.0 * Math.PI;
 		spaceship.rotation.y         = Math.PI;
 		spaceship.parent	         = camera;
@@ -282,6 +285,7 @@ function createPlanets (scene) {
 	for (var i = 0; i < planetTextures.length; ++i) {
 		var planet 				= BABYLON.Mesh.CreateSphere(planetTextures[i].split(".")[0], 50.0, planetSizes[i], scene);
 		planet.position 		= new BABYLON.Vector3(getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0));
+		// planet.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, {mass:1, friction:0.001, restitution:1.5});
 		var material 			= new BABYLON.StandardMaterial(planetTextures[i].split(".")[0] + "texture", scene);
 		planet.material 		= material;
 		material.diffuseTexture = new BABYLON.Texture("assets/" + planetTextures[i], scene);
@@ -319,6 +323,7 @@ function getAsteroidRespawn (difficulty) {
 function createAsteroid (scene) {
 	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 5.0, 36.0, scene);
 	asteroid.position        = new BABYLON.Vector3(getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000));
+	asteroid.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, {mass:1, friction:0.001, restitution:1.5});
 	var bumpMaterial         = new BABYLON.StandardMaterial("asteroidTexture", scene);
 	bumpMaterial.bumpTexture = new BABYLON.Texture("assets/asteroidBump.jpg", scene);
 

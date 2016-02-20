@@ -33,3 +33,12 @@
 	border-width: 1px;
 	border-color: white;
 }
+
+#points {
+	position: absolute;
+    right: 72%;
+    top: 1%;
+    font-size: 50px;
+    color: white;
+    text-shadow: 2px 2px 0 black;
+}

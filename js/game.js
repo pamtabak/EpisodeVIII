@@ -2,6 +2,7 @@
 var canvas      = document.getElementById("renderCanvas");
 var divTime     = document.getElementById("clock");
 var divHealth   = document.getElementById("health");
+var divPoints   = document.getElementById("points");
 var container;
 
 var controlEnabled = false;
@@ -13,6 +14,7 @@ var lastSecondAsteroidCreated = 00;
 var engine = new BABYLON.Engine(canvas, true);
 
 var gunshot;
+var points = 0;
 
 var stats;
 
@@ -57,7 +59,6 @@ function init() {
 	maxNumberOfAsteroids = getMaxNumberOfAsteroids (difficulty);
 	asteroidSpeed = getAsteroidSpeed (difficulty);
 	asteroidRespawn = getAsteroidRespawn (difficulty);
-	console.log(asteroidSpeed);
 
 	initMovement();
 	initPointerLock();
@@ -100,7 +101,8 @@ function render() {
 			lastSecondAsteroidCreated = seconds;
 			createAsteroid(scene); 
 	}
-	// console.log(asteroids.length);
+	
+	divPoints.innerHTML = points;
 
 	updateHealthStatus();
 
@@ -325,7 +327,7 @@ function createPlanets (scene) {
 
 function getMaxNumberOfAsteroids (difficulty) {
 	var number;
-	if (difficulty === "Easy")   { number = 100; }
+	if (difficulty === "Easy")   { number = 30; }
 	if (difficulty === "Medium") { number = 40; }
 	if (difficulty === "Hard")   { number = 50; }
 
@@ -334,7 +336,7 @@ function getMaxNumberOfAsteroids (difficulty) {
 
 function getAsteroidSpeed (difficulty) {
 	var speed;
-	if (difficulty === "Easy")   { speed = 50; }
+	if (difficulty === "Easy")   { speed = 5; }
 	if (difficulty === "Medium") { speed = 7; }
 	if (difficulty === "Hard")   { speed = 10; }
 
@@ -351,7 +353,7 @@ function getAsteroidRespawn (difficulty) {
 }
 
 function createAsteroid (scene) {
-	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 5.0, 1000.0, scene);
+	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 5.0, 100.0, scene);
 	asteroid.position        = new BABYLON.Vector3(getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000));
 	asteroid.applyGravity	 = true;
 	asteroid.checkCollisions = true;
@@ -412,24 +414,30 @@ function updateHealthStatus() {
 		for (var i = health * 10; i < 10; i++)
 			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,0,0);opacity:0.4;stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
 	}
+
+	if (health < 0.1) { endGame(); }
 }
 
-function createWarning (scene) {
-	// It's a trap! You're out of the safety zone. 
-	// Go back or you'll be redirected
-	var background      = BABYLON.Mesh.CreateGround("background", 100, 100, 100, scene, false);
-	var material        = new BABYLON.StandardMaterial("background", scene);
-	background.material = material;
+function endGame () {
+	location.replace("gameOver.html");
+}
+
+// function createWarning (scene) {
+// 	// It's a trap! You're out of the safety zone. 
+// 	// Go back or you'll be redirected
+// 	var background      = BABYLON.Mesh.CreateGround("background", 100, 100, 100, scene, false);
+// 	var material        = new BABYLON.StandardMaterial("background", scene);
+// 	background.material = material;
 	
-	var backgroundTexture      = new BABYLON.DynamicTexture("dynamic texture", 512, scene, true);
-	material.diffuseTexture    = backgroundTexture;
-	material.specularColor     = new BABYLON.Color3(0, 0, 0);
-	material.reflectionTexture = new BABYLON.CubeTexture("assets/space", scene);
-	material.backFaceCulling   = false;
+// 	var backgroundTexture      = new BABYLON.DynamicTexture("dynamic texture", 512, scene, true);
+// 	material.diffuseTexture    = backgroundTexture;
+// 	material.specularColor     = new BABYLON.Color3(0, 0, 0);
+// 	material.reflectionTexture = new BABYLON.CubeTexture("assets/space", scene);
+// 	material.backFaceCulling   = false;
 
-	backgroundTexture.drawText("It's a trap! You're out of the safety zone.", null, 10, "bold 70px Segoe UI", "yellow", "#555555");
-	backgroundTexture.drawText("Go back or you'll be redirected", null, 100, "bold 70px Segoe UI", "yellow", "#555555");
-}
+// 	backgroundTexture.drawText("It's a trap! You're out of the safety zone.", null, 10, "bold 70px Segoe UI", "yellow", "#555555");
+// 	backgroundTexture.drawText("Go back or you'll be redirected", null, 100, "bold 70px Segoe UI", "yellow", "#555555");
+// }
 
 function initMovement() {
 	// When a key is pressed, set the movement

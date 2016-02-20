@@ -25,11 +25,14 @@ var spaceship, planets, skybox;
 var spaceshipSpeed;
 var healthBar, health;
 var ground;
+var planetTextures, planetSizes;
 
 var asteroids = [];
 var maxNumberOfAsteroids;
 var asteroidSpeed;
 var asteroidRespawn;
+
+var width, height;
 
 var counter = 0;
 
@@ -63,13 +66,26 @@ function init() {
 	initMovement();
 	initPointerLock();
 
+	width = scene.getEngine().getRenderWidth();
+	height = scene.getEngine().getRenderHeight();
+
 	// Watch for browser/canvas resize events
 	window.addEventListener("resize", function () { engine.resize(); });
 
 	window.addEventListener("mousedown", function(evt) {
 		// left click to shoot
-		if (evt.button === 0 && controlEnabled) { gunshot.play(); }
+		if (evt.button === 0 && controlEnabled) { shoot(scene); }
 	});
+}
+
+function shoot(scene) {
+	gunshot.play();
+
+	var pickInfo = scene.pick(width/2, height/2, null, false, camera);
+	if (pickInfo.pickedMesh.name === "asteroid") {
+		pickInfo.pickedMesh.dispose();
+		points++;
+	}
 }
 
 function animate() {
@@ -207,11 +223,15 @@ function createCamera (scene) {
     scene.activeCamera 		  = camera;
 
     camera.onCollide = function (collidedMesh) {
-    	if (collidedMesh.id == "asteroid") {
+    	if (collidedMesh.id === "asteroid") {
     		collidedMesh.dispose();
     		health -= 0.1;
-    		console.log("Health = " + health);
+    		points++;
     	}
+    	if ($.inArray(collidedMesh.id + ".jpg", planetTextures)) {
+    		health -= 0.002;
+    	}
+    	console.log(health);
     }
 }
 
@@ -307,10 +327,10 @@ function createSpaceship (scene) {
 
 function createPlanets (scene) {
 	planets      		= [];
-	var planetTextures = ["mercury.jpg", "venus.jpg", "earth.jpg", "mars.jpg",
+	planetTextures = ["mercury.jpg", "venus.jpg", "earth.jpg", "mars.jpg",
 						  "jupiter.jpg", "saturn.jpg", "uranus.jpg", "neptune.jpg", 
 						  "pluto.jpg"];
-	var planetSizes = [200.0, 600.0, 800.0, 500.0, 1500.0, 1200.0, 1000.0, 900.0, 150.0];
+	planetSizes = [200.0, 600.0, 800.0, 500.0, 1500.0, 1200.0, 1000.0, 900.0, 150.0];
 
 	for (var i = 0; i < planetTextures.length; ++i) {
 		var planet 				= BABYLON.Mesh.CreateSphere(planetTextures[i].split(".")[0], 50.0, planetSizes[i], scene);
@@ -397,21 +417,21 @@ function createHealthStatus () {
 function updateHealthStatus() {
 	divHealth.innerHTML = "";
 	if (health >= 0.7){
-		for (var i = 0; i < health * 10; i++)
+		for (var i = 0; i < Math.floor(health * 10); i++)
 			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(0,255,0);stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
-		for (var i = health * 10; i < 10; i++)
+		for (var i = Math.floor(health * 10); i < 10; i++)
 			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(0,255,0);opacity:0.4;stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
 	}
 	else if (health >= 0.5 && health < 0.7) {
-		for (var i = 0; i < health * 10; i++)
+		for (var i = 0; i < Math.floor(health * 10); i++)
 			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,255,0);stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
-		for (var i = health * 10; i < 10; i++)
+		for (var i = Math.floor(health * 10); i < 10; i++)
 			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,255,0);opacity:0.4;stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
 	}
 	else {
-		for (var i = 0; i < health * 10; i++)
+		for (var i = 0; i < Math.floor(health * 10); i++)
 			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,0,0);stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
-		for (var i = health * 10; i < 10; i++)
+		for (var i = Math.floor(health * 10); i < 10; i++)
 			divHealth.innerHTML += "<svg width='20' height='20'><rect width='15' height='15' style='fill:rgb(255,0,0);opacity:0.4;stroke-width:3;stroke:rgb(0,0,0)' /></svg>"
 	}
 

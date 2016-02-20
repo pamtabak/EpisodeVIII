@@ -102,6 +102,8 @@ function render() {
 	}
 	// console.log(asteroids.length);
 
+	updateHealthStatus();
+
 	movePlanets();
 
 	if (controlEnabled) { moveAsteroids(); }
@@ -173,7 +175,7 @@ function createScene() {
     createHealthStatus();
     createMap(scene);
 
-    // gunshot = new BABYLON.Sound("gunshot", "sounds/Blaster-Solo.wav", scene);
+    gunshot = new BABYLON.Sound("gunshot", "sounds/Blaster-Solo.wav", scene);
 
    	return scene;	
 }
@@ -189,7 +191,7 @@ function createCamera (scene) {
     camera.keysLeft 		  = [65]; // A
     camera.keysRight 		  = [68]; // D
 
-    camera.ellipsoid       	  = new BABYLON.Vector3(200, 200, 200);
+    camera.ellipsoid       	  = new BABYLON.Vector3(110, 110, 110);
     camera.checkCollisions 	  = true;
     camera.applyGravity       = true;
 
@@ -201,6 +203,14 @@ function createCamera (scene) {
     camera.viewport           = new BABYLON.Viewport(0, 0, 1.0, 1.0);
     scene.activeCameras.push(camera);
     scene.activeCamera 		  = camera;
+
+    camera.onCollide = function (collidedMesh) {
+    	if (collidedMesh.id == "asteroid") {
+    		collidedMesh.dispose();
+    		health -= 0.1;
+    		console.log("Health = " + health);
+    	}
+    }
 }
 
 function createMap (scene) {
@@ -255,7 +265,8 @@ function createMap (scene) {
 function createSkybox (scene) {
 	// The box creation
 	var skybox = BABYLON.Mesh.CreateSphere("skyBox", 100.0, 10000.0, scene);
-	// skybox.checkCollisions = true;
+	var skyboxWall = BABYLON.Mesh.CreateSphere("skyBoxWall", 100.0, 9500.0, scene);
+	skybox.checkCollisions = true;
 
 	// The sky creation
 	var skyboxMaterial                               = new BABYLON.StandardMaterial("skyBox", scene);
@@ -278,14 +289,17 @@ function createSpaceship (scene) {
 		spaceship.scaling  	         = new BABYLON.Vector3(0.08, 0.08, 0.08);
 		spaceship.position 	         = new BABYLON.Vector3(0, -45, 120);
 		spaceship.rotationQuaternion = null;
-		spaceship.checkCollisions = true;
-		spaceship.ellipsoid = new BABYLON.Vector3(500, 100, 500);
-		spaceship.ellipsoidOffset = new BABYLON.Vector3(0, 2, 0);
-		spaceship.applyGravity = true;
+		spaceship.checkCollisions 	 = true;
+		spaceship.ellipsoid 		 = new BABYLON.Vector3(500, 100, 500);
+		spaceship.applyGravity 		 = true;
 		// spaceship.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, {mass:1, friction:0.001, restitution:1.5});
 		spaceship.rotation.x         = 2.0 * Math.PI;
 		spaceship.rotation.y         = Math.PI;
 		spaceship.parent	         = camera;
+
+		spaceship.onCollide = function (meshCol) {
+			console.log("spaceship collided with " + meshCol.id);
+		}
     });
 }
 
@@ -299,7 +313,8 @@ function createPlanets (scene) {
 	for (var i = 0; i < planetTextures.length; ++i) {
 		var planet 				= BABYLON.Mesh.CreateSphere(planetTextures[i].split(".")[0], 50.0, planetSizes[i], scene);
 		planet.position 		= new BABYLON.Vector3(getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0));
-		planet.checkCollisions = true;
+		planet.checkCollisions 	= true;
+		planet.applyGravity		= true;
 		// planet.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, {mass:1, friction:0.001, restitution:1.5});
 		var material 			= new BABYLON.StandardMaterial(planetTextures[i].split(".")[0] + "texture", scene);
 		planet.material 		= material;
@@ -310,7 +325,7 @@ function createPlanets (scene) {
 
 function getMaxNumberOfAsteroids (difficulty) {
 	var number;
-	if (difficulty === "Easy")   { number = 30; }
+	if (difficulty === "Easy")   { number = 100; }
 	if (difficulty === "Medium") { number = 40; }
 	if (difficulty === "Hard")   { number = 50; }
 
@@ -319,7 +334,7 @@ function getMaxNumberOfAsteroids (difficulty) {
 
 function getAsteroidSpeed (difficulty) {
 	var speed;
-	if (difficulty === "Easy")   { speed = 5; }
+	if (difficulty === "Easy")   { speed = 50; }
 	if (difficulty === "Medium") { speed = 7; }
 	if (difficulty === "Hard")   { speed = 10; }
 
@@ -336,9 +351,12 @@ function getAsteroidRespawn (difficulty) {
 }
 
 function createAsteroid (scene) {
-	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 5.0, 36.0, scene);
+	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 5.0, 1000.0, scene);
 	asteroid.position        = new BABYLON.Vector3(getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000));
+	asteroid.applyGravity	 = true;
+	asteroid.checkCollisions = true;
 	// asteroid.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, {mass:1, friction:0.001, restitution:1.5});
+
 	var bumpMaterial         = new BABYLON.StandardMaterial("asteroidTexture", scene);
 	bumpMaterial.bumpTexture = new BABYLON.Texture("assets/asteroidBump.jpg", scene);
 
@@ -430,13 +448,14 @@ function initMovement() {
 	    		// moveSpaceship(0, -spaceshipSpeed);
 				break;  
 			case 87:
-				var forwards = new BABYLON.Vector3(parseFloat(Math.sin(spaceship.rotation.y)) / 5, 0, parseFloat(Math.cos(spaceship.rotation.y)) / 5);
+				// var forward = new BABYLON.Vector3(parseFloat(Math.sin(spaceship.rotation.y)) / 5, 0, parseFloat(Math.cos(spaceship.rotation.y)) / 5);
 				// var forward = new BABYLON.Vector3(parseFloat(Math.sin(parseFloat(spaceship.rotation.y))) / 5, 0.5, parseFloat(Math.cos(parseFloat(spaceship.rotation.y))) / 5);
-				forward = forward.negate();
-				spaceship.moveWithCollisions(forward);
+				// forward = forward.negate();
+				// spaceship.moveWithCollisions(forward);
+
     			// key 'w' pressed
 	    		// moveSpaceship(0, spaceshipSpeed);
-				break; 
+				break; 	
     	}
     };
 

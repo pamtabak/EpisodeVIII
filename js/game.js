@@ -187,6 +187,9 @@ function createScene() {
 	var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 1.0;
 
+    var light2 = new BABYLON.HemisphericLight("light2", new BABYLON.Vector3(0, -1, 0), scene);
+    light2.intensity = 1.0;
+
     createSkybox(scene);
     createSpaceship(scene);
     createPlanets(scene);
@@ -228,10 +231,9 @@ function createCamera (scene) {
     		health -= 0.1;
     		points++;
     	}
-    	if ($.inArray(collidedMesh.id + ".jpg", planetTextures)) {
+    	if ($.inArray(collidedMesh.id + ".jpg", planetTextures) !== -1) {
     		health -= 0.002;
     	}
-    	console.log(health);
     }
 }
 
@@ -287,8 +289,39 @@ function createMap (scene) {
 function createSkybox (scene) {
 	// The box creation
 	var skybox = BABYLON.Mesh.CreateSphere("skyBox", 100.0, 10000.0, scene);
-	var skyboxWall = BABYLON.Mesh.CreateSphere("skyBoxWall", 100.0, 9500.0, scene);
-	skybox.checkCollisions = true;
+	var walls = [
+		BABYLON.Mesh.CreateGround("wall1", 10000 / Math.sqrt(3), 10000 / Math.sqrt(3), 2, scene),
+		BABYLON.Mesh.CreateGround("wall2", 10000 / Math.sqrt(3), 10000 / Math.sqrt(3), 2, scene),
+		BABYLON.Mesh.CreateGround("wall3", 10000 / Math.sqrt(3), 10000 / Math.sqrt(3), 2, scene),
+		BABYLON.Mesh.CreateGround("wall4", 10000 / Math.sqrt(3), 10000 / Math.sqrt(3), 2, scene),
+		BABYLON.Mesh.CreateGround("wall5", 10000 / Math.sqrt(3), 10000 / Math.sqrt(3), 2, scene),
+		BABYLON.Mesh.CreateGround("wall6", 10000 / Math.sqrt(3), 10000 / Math.sqrt(3), 2, scene),
+	]
+
+	walls[0].position.x = 5000 / Math.sqrt(3);
+	walls[0].rotate(BABYLON.Axis.Z, Math.PI / 2, BABYLON.Space.LOCAL);
+
+	walls[1].position.x = - 5000 / Math.sqrt(3);
+	walls[1].rotate(BABYLON.Axis.Z, -Math.PI / 2, BABYLON.Space.LOCAL);
+
+	walls[2].position.y = 5000 / Math.sqrt(3);
+	walls[2].rotate(BABYLON.Axis.Z, Math.PI, BABYLON.Space.LOCAL);
+
+	walls[3].position.y = - 5000 / Math.sqrt(3);
+
+	walls[4].position.z = 5000 / Math.sqrt(3);
+	walls[4].rotate(BABYLON.Axis.X, - Math.PI / 2, BABYLON.Space.LOCAL);
+
+	walls[5].position.z = - 5000 / Math.sqrt(3);
+	walls[5].rotate(BABYLON.Axis.X, Math.PI / 2, BABYLON.Space.LOCAL);
+
+	var wallMaterial   = new BABYLON.StandardMaterial("wallTexture", scene);
+	wallMaterial.alpha = 0.0;
+
+	for (var i = 0; i < walls.length; i++) {
+		walls[i].checkCollisions = true;
+		walls[i].material = wallMaterial;
+	};
 
 	// The sky creation
 	var skyboxMaterial                               = new BABYLON.StandardMaterial("skyBox", scene);

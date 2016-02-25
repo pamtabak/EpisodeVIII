@@ -124,11 +124,12 @@ function createParagraph() {
 	paragraph.push("You are in control of a intergalatic spaceship.");
 	paragraph.push("Your mission is to penetrate the enemy forces");
 	paragraph.push("and cause the most damage you can. Remember,");
-	paragraph.push("they are well armed and instructed to kill you.");
+	paragraph.push("the space is a dangerous place.");
 
 	paragraph.push("As you keep moving forward, your mission");
-	paragraph.push("may become harder. Move carefully and look");
-	paragraph.push("for bonus itens as they appear in outter space");
+	paragraph.push("may become harder. Move carefully and never");
+	paragraph.push("forget to watch your back.")
+	// paragraph.push("for bonus itens as they appear in outter space");
 
 	paragraph.push("Use your abilities and weapons to return");
 	paragraph.push("home at one piece and with your mission");
@@ -216,6 +217,8 @@ function animate() {
 		startParagraph = false;
 		createParagraph();
 	}
+
+	if (clock.getElapsedTime() >= 90) { location.replace("menu.html"); }
 }
 
 function moveLogo() {

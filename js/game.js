@@ -331,10 +331,12 @@ function createPlanets (scene) {
 						  "jupiter.jpg", "saturn.jpg", "uranus.jpg", "neptune.jpg", 
 						  "pluto.jpg"];
 	planetSizes = [200.0, 600.0, 800.0, 500.0, 1500.0, 1200.0, 1000.0, 900.0, 150.0];
+	var planetPositions = populatePlanetPositions();
 
 	for (var i = 0; i < planetTextures.length; ++i) {
 		var planet 				= BABYLON.Mesh.CreateSphere(planetTextures[i].split(".")[0], 50.0, planetSizes[i], scene);
-		planet.position 		= new BABYLON.Vector3(getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0));
+		// planet.position 		= new BABYLON.Vector3(getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0), getRandomNumber(-3000.0, 3000.0));
+		planet.position         = planetPositions[i];
 		planet.checkCollisions 	= true;
 		planet.applyGravity		= true;
 		// planet.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, {mass:1, friction:0.001, restitution:1.5});
@@ -345,8 +347,24 @@ function createPlanets (scene) {
 	}
 }
 
+function populatePlanetPositions ()
+{
+	var planetPositions = [];
+	planetPositions.push(new BABYLON.Vector3 (200.0,   200.0,    -350.0  ));
+	planetPositions.push(new BABYLON.Vector3 (1000.0,  900.0,   1524.0));
+	planetPositions.push(new BABYLON.Vector3 (-200.0,  2000.0, -2400.0));
+	planetPositions.push(new BABYLON.Vector3 (2000.0, -1000.0,  2000.0));
+	planetPositions.push(new BABYLON.Vector3 (-2500.0, 780.0,   -300.0));
+	planetPositions.push(new BABYLON.Vector3 (0.0,    -2300.0,   600.0));
+	planetPositions.push(new BABYLON.Vector3 (680.0,   457.0,    192.0));
+	planetPositions.push(new BABYLON.Vector3 (473.0,   2821.0,  -900.0));
+	planetPositions.push(new BABYLON.Vector3 (2700.0, -1023.0,   980.0));
+
+	return planetPositions;
+}
+
 function getMaxNumberOfAsteroids (difficulty) {
-	var number;
+	var number = 30;
 	if (difficulty === "Easy")   { number = 30; }
 	if (difficulty === "Medium") { number = 40; }
 	if (difficulty === "Hard")   { number = 50; }
@@ -355,7 +373,7 @@ function getMaxNumberOfAsteroids (difficulty) {
 }
 
 function getAsteroidSpeed (difficulty) {
-	var speed;
+	var speed = 5;
 	if (difficulty === "Easy")   { speed = 5; }
 	if (difficulty === "Medium") { speed = 7; }
 	if (difficulty === "Hard")   { speed = 10; }
@@ -364,7 +382,7 @@ function getAsteroidSpeed (difficulty) {
 }
 
 function getAsteroidRespawn (difficulty) {
-	var respawn;
+	var respawn = 5;
 	if (difficulty === "Easy")   { respawn = 5; }
 	if (difficulty === "Medium") { respawn = 4; }
 	if (difficulty === "Hard")   { respawn = 2; }

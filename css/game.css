@@ -42,3 +42,12 @@
     color: white;
     text-shadow: 2px 2px 0 black;
 }
+
+#border {
+	position:absolute;
+	top:50%;
+	left:20%;
+	right:20%;
+	color: yellow;
+	font-size: 40px;
+}

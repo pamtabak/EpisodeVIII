@@ -3,6 +3,7 @@ var canvas      = document.getElementById("renderCanvas");
 var divTime     = document.getElementById("clock");
 var divHealth   = document.getElementById("health");
 var divPoints   = document.getElementById("points");
+var divBorder   = document.getElementById("border");
 var container;
 
 var controlEnabled = false;
@@ -128,23 +129,19 @@ function render() {
 
 	removeAsteroids();
 
+	divBorder.innerHTML = "";
+
 	scene.render();
 }
 
 function movePlanets () {
 	for (var i = 0; i < planets.length; i++) {
 		planets[i].rotation.x += Math.PI / 1024;
-		// var rot = new BABYLON.Vector3.RotationFromAxis(BABYLON.Axis.X, 1.0, BABYLON.Space.LOCAL);
-		// planets[i].rotation = rot;
 	}
 }
 
 function moveAsteroids () {
 	for (var i = 0; i < asteroids.length; i++) {
-		// asteroids[i].position.x += asteroidSpeed;
-		// asteroids[i].position.y += asteroidSpeed;
-		// asteroids[i].position.z += asteroidSpeed;
-
 		asteroids[i][0].translate(asteroids[i][1], asteroidSpeed, BABYLON.Space.LOCAL);
 	}
 }
@@ -177,8 +174,7 @@ function createScene() {
     // Enable Collisions
     scene.collisionsEnabled = true;
     
-
-    // engine.isPointerLock = true;
+   // engine.isPointerLock = true;
 
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
 
@@ -232,8 +228,11 @@ function createCamera (scene) {
     		points++;
     	}
     	if ($.inArray(collidedMesh.id + ".jpg", planetTextures) !== -1) {
+    		// spaceship.dispose();
     		health -= 0.002;
     	}
+    	
+    	if (collidedMesh.id.indexOf("wall") > -1) { createWarning() };
     }
 }
 
@@ -493,22 +492,11 @@ function endGame () {
 	location.replace("gameOver.html");
 }
 
-// function createWarning (scene) {
-// 	// It's a trap! You're out of the safety zone. 
-// 	// Go back or you'll be redirected
-// 	var background      = BABYLON.Mesh.CreateGround("background", 100, 100, 100, scene, false);
-// 	var material        = new BABYLON.StandardMaterial("background", scene);
-// 	background.material = material;
-	
-// 	var backgroundTexture      = new BABYLON.DynamicTexture("dynamic texture", 512, scene, true);
-// 	material.diffuseTexture    = backgroundTexture;
-// 	material.specularColor     = new BABYLON.Color3(0, 0, 0);
-// 	material.reflectionTexture = new BABYLON.CubeTexture("assets/space", scene);
-// 	material.backFaceCulling   = false;
-
-// 	backgroundTexture.drawText("It's a trap! You're out of the safety zone.", null, 10, "bold 70px Segoe UI", "yellow", "#555555");
-// 	backgroundTexture.drawText("Go back or you'll be redirected", null, 100, "bold 70px Segoe UI", "yellow", "#555555");
-// }
+function createWarning () {
+	// It's a trap! You're out of the safety zone. 
+	// Go back or you'll be redirected
+	divBorder.innerHTML = "It's a trap! You're out of the safety zone. GO BACK!"
+}
 
 function initMovement() {
 	// When a key is pressed, set the movement

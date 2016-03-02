@@ -149,6 +149,9 @@ function render() {
 		}
 	}
 
+	// Moving camera so the collisions work
+	// camera.cameraDirection = new BABYLON.Vector3(1.0, 0.0, 0.0) + new BABYLON.Vector3(-1.0, 0.0, 0.0);
+
 	scene.render();
 }
 
@@ -459,10 +462,20 @@ function createAsteroid (scene) {
     	if (collidedMesh.id === "camera") { 
     		health-=0.1;
     		console.log("asteroid hit user");
-    	};
+    	}
+    	if (collidedMesh.id === "asteroid") {
+
+    	}
+    	if ($.inArray(collidedMesh.id + ".jpg", planetTextures) !== -1) {
+    		
+    	}
     }
 
 	var axis = new BABYLON.Vector3(camera.position.x - asteroid.position.x, camera.position.y - asteroid.position.y, camera.position.z - asteroid.position.z);
+
+	var forwards = axis;
+	forwards.negate();
+	asteroid.moveWithCollisions(forwards);
 
 	var pair = [asteroid, axis.normalize()];
 

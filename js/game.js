@@ -150,6 +150,7 @@ function render() {
 	}
 
 	// Moving camera so the collisions work
+	// simulateKeyPress();
 	// camera.cameraDirection = new BABYLON.Vector3(1.0, 0.0, 0.0) + new BABYLON.Vector3(-1.0, 0.0, 0.0);
 
 	scene.render();
@@ -194,6 +195,7 @@ function createScene() {
 
     // Enable Collisions
     scene.collisionsEnabled = true;
+    scene.checkCollisions   = true;
     
    // engine.isPointerLock = true;
 
@@ -384,8 +386,7 @@ function createPlanets (scene) {
 	}
 }
 
-function populatePlanetPositions ()
-{
+function populatePlanetPositions (){
 	var planetPositions = [];
 	planetPositions.push(new BABYLON.Vector3 (200.0,   200.0,    -350.0  ));
 	planetPositions.push(new BABYLON.Vector3 (1000.0,  900.0,   1524.0));
@@ -467,7 +468,7 @@ function createAsteroid (scene) {
 
     	}
     	if ($.inArray(collidedMesh.id + ".jpg", planetTextures) !== -1) {
-    		
+
     	}
     }
 

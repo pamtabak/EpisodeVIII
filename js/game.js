@@ -6,6 +6,7 @@ var divPoints   = document.getElementById("points");
 var divBorder   = document.getElementById("wall");
 var body        = document.getElementsByTagName("body")[0];
 var container;
+var keyboardPressed = false;
 
 var controlEnabled = false;
 
@@ -150,8 +151,13 @@ function render() {
 	}
 
 	// Moving camera so the collisions work
-	// simulateKeyPress();
-	// camera.cameraDirection = new BABYLON.Vector3(1.0, 0.0, 0.0) + new BABYLON.Vector3(-1.0, 0.0, 0.0);
+	fireKey(window, 65);
+	// if (!keyboardPressed){
+	fireKey(window, 68);
+	// }
+	
+	//fireKey(window, 87);
+	//fireKey(window, 83);
 
 	scene.render();
 }
@@ -248,6 +254,7 @@ function createCamera (scene) {
 
     camera.onCollide = function (collidedMesh) {
     	if (collidedMesh.id === "asteroid") {
+    		console.log("camera hit");
     		collidedMesh.dispose();
     		asteroidExplosion.play();
     		body.style="filter:grayscale(100%);";
@@ -394,7 +401,7 @@ function populatePlanetPositions (){
 	planetPositions.push(new BABYLON.Vector3 (2000.0, -1000.0,  2000.0));
 	planetPositions.push(new BABYLON.Vector3 (-2500.0, 780.0,   -300.0));
 	planetPositions.push(new BABYLON.Vector3 (0.0,    -2300.0,   600.0));
-	planetPositions.push(new BABYLON.Vector3 (680.0,   457.0,    192.0));
+	planetPositions.push(new BABYLON.Vector3 (-2080.0,   -1000.0,    -192.0));
 	planetPositions.push(new BABYLON.Vector3 (473.0,   2821.0,  -900.0));
 	planetPositions.push(new BABYLON.Vector3 (2700.0, -1023.0,   980.0));
 
@@ -459,7 +466,7 @@ function createAsteroid (scene) {
 
 	// Checking for collisions
 	asteroid.onCollide = function (collidedMesh) {
-		console.log(collidedMesh.id);
+		console.log("asteroid hit " + collidedMesh.id);
     	if (collidedMesh.id === "camera") { 
     		health-=0.1;
     		console.log("asteroid hit user");
@@ -529,15 +536,18 @@ function initMovement() {
     var onKeyDown = function(evt) {
     	switch (evt.keyCode) {
     		case 65:
-    			// key 'a' presseds
+    			// key 'a' pressed
+    			keyboardPressed = true;
 	    		// moveSpaceship(-spaceshipSpeed, 0);
 				break;  
 			case 68:
     			// key 'd' pressed
+    			keyboardPressed = true;
 	    		// moveSpaceship(spaceshipSpeed, 0);
 				break;
 			case 83:
     			// key 's' presseds
+    			keyboardPressed = true;
 	    		// moveSpaceship(0, -spaceshipSpeed);
 				break;  
 			case 87:
@@ -547,12 +557,14 @@ function initMovement() {
 				// spaceship.moveWithCollisions(forward);
 
     			// key 'w' pressed
+    			keyboardPressed = true;
 	    		// moveSpaceship(0, spaceshipSpeed);
 				break; 	
     	}
     };
 
     var onKeyUp = function(evt) {
+    	keyboardPressed = false;
     }
 
 	// Register events with the right Babylon function
@@ -593,6 +605,21 @@ function pointerLockChange (event) {
 
 function getRandomNumber (min, max) {
 	return Math.random() * (max - min + 1) + min;
+}
+
+function fireKey(el,key){
+    if(document.createEventObject){
+        var eventObj = document.createEventObject();
+        eventObj.keyCode = key;
+        el.fireEvent("onkeydown", eventObj);
+        eventObj.keyCode = key;   
+    } else if(document.createEvent){
+        var eventObj = document.createEvent("Events");
+        eventObj.initEvent("keydown", true, true);
+        eventObj.which = key; 
+        eventObj.keyCode = key;
+        el.dispatchEvent(eventObj);
+    }
 }
 
 // function moveSpaceship(speedX, speedY) {

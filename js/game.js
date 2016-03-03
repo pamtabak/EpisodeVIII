@@ -13,6 +13,11 @@ var controlEnabled = false;
 // Variable used to create asteroids within a certain time difference
 var lastSecondAsteroidCreated = 00;
 
+var lastSecondMovementChanged = 00;
+var move = 65;
+
+var eventObj = null;
+
 // Load the BABYLON 3D engine
 var engine = new BABYLON.Engine(canvas, true);
 
@@ -105,6 +110,18 @@ function animate() {
 	stats.update();
 }
 
+function changeMove() {
+	stopKey(window, move);
+	switch (move) {
+		case 65:
+			move = 68;
+			break;
+		case 68:
+			move = 65;
+			break;
+	}
+}
+
 function render() {
 	// Updating timer
 	var elapsedTime = clock.getElapsedTime().toString().split(".")[0];
@@ -125,6 +142,11 @@ function render() {
 		&& (lastSecondAsteroidCreated != seconds)) {
 			lastSecondAsteroidCreated = seconds;
 			createAsteroid(scene); 
+	}
+
+	if (((seconds * 100) % 1 == 0) && (lastSecondMovementChanged != seconds)) {
+		lastSecondMovementChanged = seconds;
+		changeMove(move);
 	}
 	
 	divPoints.innerHTML = points;
@@ -151,13 +173,7 @@ function render() {
 	}
 
 	// Moving camera so the collisions work
-	fireKey(window, 65);
-	// if (!keyboardPressed){
-	fireKey(window, 68);
-	// }
-	
-	//fireKey(window, 87);
-	//fireKey(window, 83);
+	fireKey(window, move);
 
 	scene.render();
 }
@@ -410,7 +426,7 @@ function populatePlanetPositions (){
 
 function getMaxNumberOfAsteroids (difficulty) {
 	var number = 30;
-	if (difficulty === "Easy")   { number = 30; }
+	if (difficulty === "Easy")   { number = 300; }
 	if (difficulty === "Medium") { number = 40; }
 	if (difficulty === "Hard")   { number = 50; }
 
@@ -428,7 +444,7 @@ function getAsteroidSpeed (difficulty) {
 
 function getAsteroidRespawn (difficulty) {
 	var respawn = 5;
-	if (difficulty === "Easy")   { respawn = 5; }
+	if (difficulty === "Easy")   { respawn = 1; }
 	if (difficulty === "Medium") { respawn = 4; }
 	if (difficulty === "Hard")   { respawn = 2; }
 
@@ -466,7 +482,6 @@ function createAsteroid (scene) {
 
 	// Checking for collisions
 	asteroid.onCollide = function (collidedMesh) {
-		console.log("asteroid hit " + collidedMesh.id);
     	if (collidedMesh.id === "camera") { 
     		health-=0.1;
     		console.log("asteroid hit user");
@@ -534,6 +549,7 @@ function createWarning () {
 function initMovement() {
 	// When a key is pressed, set the movement
     var onKeyDown = function(evt) {
+    	// console.log("pressed " + evt.keyCode);
     	switch (evt.keyCode) {
     		case 65:
     			// key 'a' pressed
@@ -559,11 +575,12 @@ function initMovement() {
     			// key 'w' pressed
     			keyboardPressed = true;
 	    		// moveSpaceship(0, spaceshipSpeed);
-				break; 	
+				break;
     	}
     };
 
     var onKeyUp = function(evt) {
+    	// console.log("released " + evt.keyCode);
     	keyboardPressed = false;
     }
 
@@ -609,13 +626,32 @@ function getRandomNumber (min, max) {
 
 function fireKey(el,key){
     if(document.createEventObject){
-        var eventObj = document.createEventObject();
+        eventObj = document.createEventObject();
         eventObj.keyCode = key;
         el.fireEvent("onkeydown", eventObj);
-        eventObj.keyCode = key;   
+        // el.fireEvent("onkeyup", eventObj);
+        eventObj.keyCode = key; 
     } else if(document.createEvent){
-        var eventObj = document.createEvent("Events");
+        eventObj = document.createEvent("Events");
         eventObj.initEvent("keydown", true, true);
+        // eventObj.initEvent("keyup", true, true);
+        eventObj.which = key; 
+        eventObj.keyCode = key;
+        el.dispatchEvent(eventObj);
+    }
+}
+
+function stopKey(el,key){
+    if(document.createEventObject){
+        eventObj = document.createEventObject();
+        eventObj.keyCode = key;
+        el.fireEvent("onkeyup", eventObj);
+        // el.fireEvent("onkeyup", eventObj);
+        eventObj.keyCode = key; 
+    } else if(document.createEvent){
+        eventObj = document.createEvent("Events");
+        eventObj.initEvent("keyup", true, true);
+        // eventObj.initEvent("keyup", true, true);
         eventObj.which = key; 
         eventObj.keyCode = key;
         el.dispatchEvent(eventObj);

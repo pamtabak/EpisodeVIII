@@ -1,6 +1,8 @@
 var container, stats;
 var scene, camera, renderer, raycaster;
 var planeStart, planeMenu;
+var divPoints = document.getElementById("points");
+var score = 0;
 
 var mouse = new THREE.Vector2(), INTERSECTED;
 
@@ -25,9 +27,13 @@ function init() {
 	// initialize raycaster
 	raycaster = new THREE.Raycaster();
 
+	// Getting number of points
+	score = localStorage.getItem("score");
+
 	createStats();
 	createGameOver();
 	createButtons();
+	writePoints();
 
 	window.addEventListener( 'resize', onWindowResize, false );
 	document.addEventListener( 'mousedown' , onMouseLeftButtonDown, false );
@@ -67,8 +73,8 @@ function createButtons () {
 	var texture           = THREE.ImageUtils.loadTexture("images/start.png");
 	var material          = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
 	planeStart            =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
-	planeStart.position.x = 0;
-	planeStart.position.y = 170;
+	planeStart.position.x = -100;
+	planeStart.position.y = 60;
 	planeStart.position.z = -100;
 	planeStart.name       = "StartButton";
 	scene.add(planeStart);
@@ -77,8 +83,8 @@ function createButtons () {
 	var texture          = THREE.ImageUtils.loadTexture("images/back.png");
 	var material         = new THREE.MeshBasicMaterial({ map : texture, transparent: true});
 	planeMenu            =  new THREE.Mesh(new THREE.PlaneGeometry(150, 70), material);
-	planeMenu.position.x = 0;
-	planeMenu.position.y = 100;
+	planeMenu.position.x = 100;
+	planeMenu.position.y = 60;
 	planeMenu.position.z = -100;
 	planeMenu.name       = "MenuButton";
 	scene.add(planeMenu);
@@ -93,6 +99,15 @@ function createGameOver() {
 	planeGameOver.position.z = -100;
 	planeGameOver.name       = "GameOver";
 	scene.add(planeGameOver);
+}
+
+function writePoints() {
+	var string = "You scored " + score;
+	if (score == "1")
+		string += " point!";
+	else
+		string += " points!";
+	divPoints.innerHTML = string;
 }
 
 function onMouseLeftButtonDown(event) {

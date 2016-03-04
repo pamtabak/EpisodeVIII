@@ -175,7 +175,7 @@ function render() {
 	// }
 	
 	// Check if user is pressing any keyboard key (W,A,S,D). In case the answer is no, we 
-	// move the camera, so the collision can work
+	// move the camera, so the collision work
 	if (!keyboardPressed)
 	{
 		changeMove(move);
@@ -263,6 +263,7 @@ function createCamera (scene) {
     camera.keysRight 		  = [68, 100]; // D, d
 
     camera.ellipsoid       	  = new BABYLON.Vector3(110, 110, 110);
+    camera.ellipsoidOffset    = new BABYLON.Vector3(0, -45, 120);
     camera.checkCollisions 	  = true;
     camera.applyGravity       = true;
 
@@ -435,9 +436,9 @@ function populatePlanetPositions (){
 
 function getMaxNumberOfAsteroids (difficulty) {
 	var number = 30;
-	if (difficulty === "Easy")   { number = 30; }
-	if (difficulty === "Medium") { number = 40; }
-	if (difficulty === "Hard")   { number = 50; }
+	if (difficulty === "Easy")   { number = 40; }
+	if (difficulty === "Medium") { number = 50; }
+	if (difficulty === "Hard")   { number = 70; }
 
 	return number;
 }
@@ -453,16 +454,23 @@ function getAsteroidSpeed (difficulty) {
 
 function getAsteroidRespawn (difficulty) {
 	var respawn = 5;
-	if (difficulty === "Easy")   { respawn = 5; }
-	if (difficulty === "Medium") { respawn = 4; }
-	if (difficulty === "Hard")   { respawn = 2; }
+	if (difficulty === "Easy")   { respawn = 3; }
+	if (difficulty === "Medium") { respawn = 2; }
+	if (difficulty === "Hard")   { respawn = 1; }
 
 	return respawn;
 }
 
 function createAsteroid (scene) {
 	var asteroid             = BABYLON.Mesh.CreateSphere("asteroid", 5.0, 100.0, scene);
-	asteroid.position        = new BABYLON.Vector3(getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000), getRandomNumber(-5000, 5000));
+	
+	var pos = {
+    	x: [getRandomNumber(-6000, -5000), getRandomNumber(5000, 6000)],
+  		y: [getRandomNumber(-6000, -5000), getRandomNumber(5000, 6000)],
+  		z: [getRandomNumber(-6000, -5000), getRandomNumber(5000, 6000)] 
+ 	};
+ 	asteroid.position        = new BABYLON.Vector3(pos.x[Math.floor(getRandomNumber(0,1))], pos.y[Math.floor(getRandomNumber(0,1))], pos.z[Math.floor(getRandomNumber(0,1))]);
+
 	asteroid.applyGravity	 = true;
 	asteroid.checkCollisions = true;
 	asteroid.ellipsoid       = new BABYLON.Vector3(110, 110, 110);
@@ -546,6 +554,8 @@ function updateHealthStatus() {
 }
 
 function endGame () {
+	// Sending score to next page
+	localStorage.setItem("score", points);
 	location.replace("gameOver.html");
 }
 
@@ -557,32 +567,22 @@ function createWarning () {
 function initMovement() {
 	// When a key is pressed, set the movement
     var onKeyDown = function(evt) {
-    	console.log("pressed " + evt.keyCode);
     	switch (evt.keyCode) {
     		case 65:
+    			stopKey(window, move);	
     			keyboardPressed = true;
-    			// key 'a' pressed
-	    		// moveSpaceship(-spaceshipSpeed, 0);
 				break;  
 			case 68:
+				stopKey(window, move);	
 				keyboardPressed = true;
-    			// key 'd' pressed
-	    		// moveSpaceship(spaceshipSpeed, 0);
 				break;
 			case 83:
+				stopKey(window, move);	
 				keyboardPressed = true;
-    			// key 's' presseds
-	    		// moveSpaceship(0, -spaceshipSpeed);
 				break;  
 			case 87:
+				stopKey(window, move);	
 				keyboardPressed = true;
-				// var forward = new BABYLON.Vector3(parseFloat(Math.sin(spaceship.rotation.y)) / 5, 0, parseFloat(Math.cos(spaceship.rotation.y)) / 5);
-				// var forward = new BABYLON.Vector3(parseFloat(Math.sin(parseFloat(spaceship.rotation.y))) / 5, 0.5, parseFloat(Math.cos(parseFloat(spaceship.rotation.y))) / 5);
-				// forward = forward.negate();
-				// spaceship.moveWithCollisions(forward);
-
-    			// key 'w' pressed
-	    		// moveSpaceship(0, spaceshipSpeed);
 				break;
     	}
     };
